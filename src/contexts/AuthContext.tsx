@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { signIn, signOut, getCurrentUser } from 'aws-amplify/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -9,29 +10,51 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Check if user was previously logged in (from localStorage)
-    return localStorage.getItem('isAuthenticated') === 'true';
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = async (username: string, password: string) => {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+  // Check if user is already authenticated on mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
 
-    // TODO: Replace with actual authentication
-    // For now, accept any username/password
-    if (username && password) {
+  const checkAuthStatus = async () => {
+    try {
+      await getCurrentUser();
       setIsAuthenticated(true);
-      localStorage.setItem('isAuthenticated', 'true');
-    } else {
-      throw new Error('Username and password are required');
+    } catch {
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
+  const login = async (username: string, password: string) => {
+    try {
+      await signIn({ username, password });
+      setIsAuthenticated(true);
+    } catch (error) {
+      setIsAuthenticated(false);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      throw new Error('Login failed');
+    }
   };
+
+  const logout = async () => {
+    try {
+      await signOut();
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  // Don't render children until we've checked auth status
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
