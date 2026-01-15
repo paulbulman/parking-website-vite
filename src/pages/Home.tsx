@@ -1,4 +1,4 @@
-import { useSummary } from '../hooks/useSummary';
+import { useSummary } from "../hooks/api/queries/summary";
 
 function Home() {
   const { data, isLoading, error } = useSummary();
@@ -6,7 +6,7 @@ function Home() {
   if (isLoading) {
     return (
       <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Home</h1>
+        <h1 className="text-3xl font-bold mb-4">Summary</h1>
         <p>Loading summary data...</p>
       </div>
     );
@@ -15,38 +15,92 @@ function Home() {
   if (error) {
     return (
       <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Home</h1>
-        <p className="text-red-600">Error loading summary data: {error.message}</p>
+        <h1 className="text-3xl font-bold mb-4">Summary</h1>
+        <p className="text-red-600">
+          Error loading summary data: {error.message}
+        </p>
       </div>
     );
   }
 
+  const getStatusColor = (status: string | null | undefined) => {
+    switch (status) {
+      case "allocated":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-orange-100 text-orange-800";
+      case "interrupted":
+      case "hardInterrupted":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-50 text-gray-400";
+    }
+  };
+
+  const getStatusLabel = (status: string | null | undefined) => {
+    switch (status) {
+      case "allocated":
+        return "Allocated";
+      case "pending":
+        return "Pending";
+      case "interrupted":
+      case "hardInterrupted":
+        return "Interrupted";
+      default:
+        return "-";
+    }
+  };
+
   return (
     <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Parking Summary</h1>
+      <h1 className="text-3xl font-bold mb-6">Summary</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-gray-600 text-sm font-medium uppercase mb-2">Available Spaces</h2>
-          <p className="text-4xl font-bold text-blue-600">
-            {data?.availableSpaces} <span className="text-xl text-gray-400">/ {data?.totalSpaces}</span>
-          </p>
-        </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse border border-gray-300">
+          <tbody>
+            {data?.summary.weeks.map((week, weekIndex) => (
+              <tr key={weekIndex}>
+                {week.days.map((day, dayIndex) => {
+                  if (day.hidden) {
+                    return (
+                      <td
+                        key={dayIndex}
+                        className="border border-gray-300 p-0"
+                      ></td>
+                    );
+                  }
 
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-gray-600 text-sm font-medium uppercase mb-2">Active Reservations</h2>
-          <p className="text-4xl font-bold text-green-600">{data?.activeReservations}</p>
-        </div>
+                  const statusColor = getStatusColor(day.data?.status);
+                  const isProblem = day.data?.isProblem;
+                  const date = new Date(day.localDate);
+                  const dayOfMonth = date.getDate();
+                  const dayOfWeek = date.toLocaleDateString("en-US", {
+                    weekday: "short",
+                  });
 
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-gray-600 text-sm font-medium uppercase mb-2">Pending Requests</h2>
-          <p className="text-4xl font-bold text-orange-600">{data?.pendingRequests}</p>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-          <h2 className="text-gray-600 text-sm font-medium uppercase mb-2">Registered Users</h2>
-          <p className="text-4xl font-bold text-purple-600">{data?.registeredUsers}</p>
-        </div>
+                  return (
+                    <td
+                      key={dayIndex}
+                      className={`border border-gray-300 p-4 text-center ${statusColor} ${
+                        isProblem ? "ring-2 ring-red-500 ring-inset" : ""
+                      }`}
+                    >
+                      <div className="text-xs text-gray-600 mb-1">
+                        {dayOfWeek}
+                      </div>
+                      <div className="text-lg font-semibold mb-1">
+                        {dayOfMonth}
+                      </div>
+                      <div className="text-sm font-medium">
+                        {getStatusLabel(day.data?.status)}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
