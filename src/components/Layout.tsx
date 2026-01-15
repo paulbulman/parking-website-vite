@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 
 function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -11,32 +11,32 @@ function Layout() {
           <div className="flex justify-between h-16">
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-8">
-              <Link to="/" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              <NavLink to="/" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Home
-              </Link>
-              <Link to="/registration-numbers" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              </NavLink>
+              <NavLink to="/registration-numbers" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Registration Numbers
-              </Link>
-              <Link to="/edit-reservations" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              </NavLink>
+              <NavLink to="/edit-reservations" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Edit Reservations
-              </Link>
-              <Link to="/override-requests" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              </NavLink>
+              <NavLink to="/override-requests" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Override Requests
-              </Link>
-              <Link to="/users" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              </NavLink>
+              <NavLink to="/users" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Users
-              </Link>
+              </NavLink>
             </div>
             <div className="hidden md:flex space-x-8">
-              <Link to="/profile" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              <NavLink to="/profile" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Profile
-              </Link>
-              <Link to="/faq" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              </NavLink>
+              <NavLink to="/faq" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 FAQ
-              </Link>
-              <Link to="/logout" className="flex items-center px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md">
+              </NavLink>
+              <NavLink to="/logout" className={({ isActive }) => `flex items-center px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'}`}>
                 Logout
-              </Link>
+              </NavLink>
             </div>
 
             {/* Mobile menu button */}
@@ -78,30 +78,30 @@ function Layout() {
           {mobileMenuOpen && (
             <div className="md:hidden pb-3">
               <div className="flex flex-col space-y-1">
-                <Link to="/" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                <NavLink to="/" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Home
-                </Link>
-                <Link to="/registration-numbers" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/registration-numbers" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Registration Numbers
-                </Link>
-                <Link to="/edit-reservations" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/edit-reservations" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Edit Reservations
-                </Link>
-                <Link to="/override-requests" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/override-requests" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Override Requests
-                </Link>
-                <Link to="/users" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/users" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Users
-                </Link>
-                <Link to="/profile" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/profile" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Profile
-                </Link>
-                <Link to="/faq" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/faq" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   FAQ
-                </Link>
-                <Link to="/logout" className="px-3 py-2 text-sm font-medium hover:bg-gray-700 rounded-md" onClick={() => setMobileMenuOpen(false)}>
+                </NavLink>
+                <NavLink to="/logout" className={({ isActive }) => `px-3 py-2 text-sm font-medium rounded-md ${isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'}`} onClick={() => setMobileMenuOpen(false)}>
                   Logout
-                </Link>
+                </NavLink>
               </div>
             </div>
           )}
