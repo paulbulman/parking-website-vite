@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { signIn, signOut, getCurrentUser } from 'aws-amplify/auth';
+import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
+  getAuthToken: () => Promise<string | undefined>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -51,13 +52,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getAuthToken = async (): Promise<string | undefined> => {
+    try {
+      const session = await fetchAuthSession();
+      return session.tokens?.idToken?.toString();
+    } catch (error) {
+      console.error('Error fetching auth token:', error);
+      return undefined;
+    }
+  };
+
   // Don't render children until we've checked auth status
   if (isLoading) {
     return null;
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout, getAuthToken }}>
       {children}
     </AuthContext.Provider>
   );
