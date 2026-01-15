@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NavLinkProps {
   to: string;
@@ -38,8 +39,31 @@ function MobileNavLink({ to, children, onClick }: NavLinkProps) {
   );
 }
 
+function LogoutButton({ onClick, isMobile = false }: { onClick: () => void; isMobile?: boolean }) {
+  const baseClasses = 'text-sm font-medium rounded-md hover:bg-gray-700';
+  const desktopClasses = 'flex items-center px-3 py-2';
+  const mobileClasses = 'px-3 py-2';
+
+  return (
+    <button
+      onClick={onClick}
+      className={`${baseClasses} ${isMobile ? mobileClasses : desktopClasses}`}
+    >
+      Logout
+    </button>
+  );
+}
+
 function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setMobileMenuOpen(false);
+    navigate('/login');
+  };
 
   return (
     <>
@@ -57,7 +81,7 @@ function Layout() {
             <div className="hidden md:flex space-x-8">
               <DesktopNavLink to="/profile">Profile</DesktopNavLink>
               <DesktopNavLink to="/faq">FAQ</DesktopNavLink>
-              <DesktopNavLink to="/logout">Logout</DesktopNavLink>
+              <LogoutButton onClick={handleLogout} />
             </div>
 
             {/* Mobile menu button */}
@@ -106,7 +130,7 @@ function Layout() {
                 <MobileNavLink to="/users" onClick={() => setMobileMenuOpen(false)}>Users</MobileNavLink>
                 <MobileNavLink to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</MobileNavLink>
                 <MobileNavLink to="/faq" onClick={() => setMobileMenuOpen(false)}>FAQ</MobileNavLink>
-                <MobileNavLink to="/logout" onClick={() => setMobileMenuOpen(false)}>Logout</MobileNavLink>
+                <LogoutButton onClick={handleLogout} isMobile />
               </div>
             </div>
           )}
