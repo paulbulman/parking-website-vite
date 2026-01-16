@@ -16,7 +16,7 @@ export const get = async <T>(
 };
 
 export const patch =
-  (getToken: () => Promise<string>, endpoint: string) =>
+  (getToken: () => Promise<string | undefined>, endpoint: string) =>
   async <TRequestBody, TRequestResult>(patchData: TRequestBody) => {
     const url = createFullUrl(endpoint);
 
@@ -37,7 +37,7 @@ export const patch =
   };
 
 export const post =
-  (getToken: () => Promise<string>, endpoint: string) =>
+  (getToken: () => Promise<string | undefined>, endpoint: string) =>
   async <TRequestBody, TRequestResult>(patchData: TRequestBody) => {
     const url = createFullUrl(endpoint);
 
@@ -58,7 +58,7 @@ export const post =
   };
 
 export const httpDelete = async (
-  getToken: () => Promise<string>,
+  getToken: () => Promise<string | undefined>,
   endpoint: string
 ) => {
   const url = createFullUrl(endpoint);

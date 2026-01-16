@@ -13,7 +13,7 @@ export const useEditRequests = () => {
     Error,
     EditRequestsRequestBody
   >({
-    mutationFn: patch(getAuthToken as () => Promise<string>, endpoint),
+    mutationFn: patch(getAuthToken, endpoint),
     onSuccess: (data) => {
       queryClient.setQueryData([endpoint], data);
       queryClient.invalidateQueries({ queryKey: ["summary"] });
