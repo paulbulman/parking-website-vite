@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { resetPassword } from "aws-amplify/auth";
 import { Link } from "react-router";
+import { useAuthContext } from "../contexts/AuthContext";
 
 function ForgotPassword() {
   const [username, setUsername] = useState("");
@@ -9,6 +10,14 @@ function ForgotPassword() {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuthContext();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

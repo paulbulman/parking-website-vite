@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { confirmResetPassword, signIn } from "aws-amplify/auth";
 import { useAuthContext } from "../contexts/AuthContext";
@@ -12,9 +12,16 @@ function ResetPassword() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { refreshAuthStatus } = useAuthContext();
+  const { refreshAuthStatus, isAuthenticated } = useAuthContext();
 
   const username = (location.state as { username?: string })?.username;
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   // Redirect to forgot password if no username in state
   if (!username) {
