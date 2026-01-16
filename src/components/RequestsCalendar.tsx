@@ -39,8 +39,11 @@ function RequestsCalendar({
 
                 const date = new Date(day.localDate);
                 const dayOfMonth = date.getDate();
-                const dayOfWeek = date.toLocaleDateString("en-US", {
+                const dayOfWeek = date.toLocaleDateString("en-GB", {
                   weekday: "short",
+                });
+                const monthName = date.toLocaleDateString("en-GB", {
+                  month: "short",
                 });
                 const isChecked = requests[day.localDate] || false;
 
@@ -58,7 +61,7 @@ function RequestsCalendar({
                       {dayOfWeek}
                     </div>
                     <div className="text-lg font-semibold mb-2">
-                      {dayOfMonth}
+                      {dayOfMonth} {monthName}
                     </div>
                     <div className="flex justify-center">
                       <input

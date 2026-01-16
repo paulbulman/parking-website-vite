@@ -85,8 +85,11 @@ function Home() {
                   const isProblem = day.data?.isProblem;
                   const date = new Date(day.localDate);
                   const dayOfMonth = date.getDate();
-                  const dayOfWeek = date.toLocaleDateString("en-US", {
+                  const dayOfWeek = date.toLocaleDateString("en-GB", {
                     weekday: "short",
+                  });
+                  const monthName = date.toLocaleDateString("en-GB", {
+                    month: "short",
                   });
 
                   return (
@@ -103,7 +106,7 @@ function Home() {
                         {dayOfWeek}
                       </div>
                       <div className="text-lg font-semibold mb-1">
-                        {dayOfMonth}
+                        {dayOfMonth} {monthName}
                       </div>
                       <div className="text-sm font-medium">
                         {getStatusLabel(day.data?.status)}

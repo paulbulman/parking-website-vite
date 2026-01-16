@@ -8,7 +8,9 @@ function EditReservations() {
 
   // State to track the selected users for each day
   // Structure: { [localDate]: string[] } where string[] is array of userIds
-  const [initialSelections, setInitialSelections] = useState<Record<string, string[]>>({});
+  const [initialSelections, setInitialSelections] = useState<
+    Record<string, string[]>
+  >({});
   const [selections, setSelections] = useState<Record<string, string[]>>({});
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -129,8 +131,11 @@ function EditReservations() {
 
                   const date = new Date(day.localDate);
                   const dayOfMonth = date.getDate();
-                  const dayOfWeek = date.toLocaleDateString("en-US", {
+                  const dayOfWeek = date.toLocaleDateString("en-GB", {
                     weekday: "short",
+                  });
+                  const monthName = date.toLocaleDateString("en-GB", {
+                    month: "short",
                   });
 
                   const currentSelections = selections[day.localDate] || [];
@@ -144,7 +149,7 @@ function EditReservations() {
                         {dayOfWeek}
                       </div>
                       <div className="text-lg font-semibold mb-3">
-                        {dayOfMonth}
+                        {dayOfMonth} {monthName}
                       </div>
 
                       {/* Render dropdowns based on shortLeadTimeSpaces */}
