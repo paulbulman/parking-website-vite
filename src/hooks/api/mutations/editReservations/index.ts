@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuthContext } from "../../../../contexts/AuthContext";
 import { patch } from "../../helpers";
 import type {
   EditReservationsRequestBody,
@@ -9,7 +9,7 @@ import type {
 export const useEditReservations = () => {
   const endpoint = "reservations";
   const queryClient = useQueryClient();
-  const { getAuthToken } = useAuth();
+  const { getToken: getAuthToken } = useAuthContext();
 
   const mutation = useMutation<
     EditReservationsRequestResult,

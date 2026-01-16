@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { useAuth } from '../contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useAuthContext } from "../contexts/AuthContext";
 
 interface DecodedToken {
-  'cognito:groups'?: string[];
+  "cognito:groups"?: string[];
   [key: string]: unknown;
 }
 
-export const USER_ADMIN = 'UserAdmin' as const;
-export const TEAM_LEADER = 'TeamLeader' as const;
+export const USER_ADMIN = "UserAdmin" as const;
+export const TEAM_LEADER = "TeamLeader" as const;
 
 export type Permission = typeof USER_ADMIN | typeof TEAM_LEADER;
 
 export function usePermissions() {
-  const { getAuthToken, isAuthenticated } = useAuth();
+  const { getToken: getAuthToken, isAuthenticated } = useAuthContext();
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,7 +34,7 @@ export function usePermissions() {
         }
 
         const decoded = jwtDecode<DecodedToken>(token);
-        const groups = decoded['cognito:groups'] || [];
+        const groups = decoded["cognito:groups"] || [];
 
         // Filter to only valid permission types
         const validPermissions = groups.filter(
@@ -44,7 +44,7 @@ export function usePermissions() {
 
         setPermissions(validPermissions);
       } catch (error) {
-        console.error('Error decoding token:', error);
+        console.error("Error decoding token:", error);
         setPermissions([]);
       } finally {
         setIsLoading(false);
@@ -59,11 +59,15 @@ export function usePermissions() {
   };
 
   const hasAnyPermission = (requiredPermissions: Permission[]): boolean => {
-    return requiredPermissions.some(permission => permissions.includes(permission));
+    return requiredPermissions.some((permission) =>
+      permissions.includes(permission)
+    );
   };
 
   const hasAllPermissions = (requiredPermissions: Permission[]): boolean => {
-    return requiredPermissions.every(permission => permissions.includes(permission));
+    return requiredPermissions.every((permission) =>
+      permissions.includes(permission)
+    );
   };
 
   const isUserAdmin = (): boolean => {

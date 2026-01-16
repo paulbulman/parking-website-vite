@@ -1,11 +1,22 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import {
+  signIn,
+  signOut,
+  getCurrentUser,
+  fetchAuthSession,
+} from "aws-amplify/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
-  getAuthToken: () => Promise<string | undefined>;
+  getToken: () => Promise<string | undefined>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error instanceof Error) {
         throw new Error(error.message);
       }
-      throw new Error('Login failed');
+      throw new Error("Login failed");
     }
   };
 
@@ -48,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await signOut();
       setIsAuthenticated(false);
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
@@ -57,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const session = await fetchAuthSession();
       return session.tokens?.idToken?.toString();
     } catch (error) {
-      console.error('Error fetching auth token:', error);
+      console.error("Error fetching auth token:", error);
       return undefined;
     }
   };
@@ -68,16 +79,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, getAuthToken }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, login, logout, getToken: getAuthToken }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() {
+export function useAuthContext() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

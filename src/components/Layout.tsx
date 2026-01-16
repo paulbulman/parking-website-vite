@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../hooks/usePermissions';
+import { useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../contexts/AuthContext";
+import { usePermissions } from "../hooks/usePermissions";
 
 interface NavLinkProps {
   to: string;
@@ -15,7 +15,9 @@ function DesktopNavLink({ to, children }: NavLinkProps) {
       to={to}
       className={({ isActive }) =>
         `flex items-center px-3 py-2 text-sm font-medium rounded-md ${
-          isActive ? 'bg-gray-900 border-b-2 border-blue-500' : 'hover:bg-gray-700'
+          isActive
+            ? "bg-gray-900 border-b-2 border-blue-500"
+            : "hover:bg-gray-700"
         }`
       }
     >
@@ -30,7 +32,9 @@ function MobileNavLink({ to, children, onClick }: NavLinkProps) {
       to={to}
       className={({ isActive }) =>
         `px-3 py-2 text-sm font-medium rounded-md ${
-          isActive ? 'bg-gray-900 border-l-4 border-blue-500' : 'hover:bg-gray-700'
+          isActive
+            ? "bg-gray-900 border-l-4 border-blue-500"
+            : "hover:bg-gray-700"
         }`
       }
       onClick={onClick}
@@ -40,10 +44,16 @@ function MobileNavLink({ to, children, onClick }: NavLinkProps) {
   );
 }
 
-function LogoutButton({ onClick, isMobile = false }: { onClick: () => void; isMobile?: boolean }) {
-  const baseClasses = 'text-sm font-medium rounded-md hover:bg-gray-700';
-  const desktopClasses = 'flex items-center px-3 py-2';
-  const mobileClasses = 'px-3 py-2';
+function LogoutButton({
+  onClick,
+  isMobile = false,
+}: {
+  onClick: () => void;
+  isMobile?: boolean;
+}) {
+  const baseClasses = "text-sm font-medium rounded-md hover:bg-gray-700";
+  const desktopClasses = "flex items-center px-3 py-2";
+  const mobileClasses = "px-3 py-2";
 
   return (
     <button
@@ -57,14 +67,14 @@ function LogoutButton({ onClick, isMobile = false }: { onClick: () => void; isMo
 
 function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { logout } = useAuth();
+  const { logout } = useAuthContext();
   const navigate = useNavigate();
   const { isTeamLeader, isUserAdmin } = usePermissions();
 
   const handleLogout = async () => {
     await logout();
     setMobileMenuOpen(false);
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -75,12 +85,18 @@ function Layout() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex space-x-8">
               <DesktopNavLink to="/">Home</DesktopNavLink>
-              <DesktopNavLink to="/registration-numbers">Registration Numbers</DesktopNavLink>
+              <DesktopNavLink to="/registration-numbers">
+                Registration Numbers
+              </DesktopNavLink>
               {isTeamLeader() && (
-                <DesktopNavLink to="/edit-reservations">Edit Reservations</DesktopNavLink>
+                <DesktopNavLink to="/edit-reservations">
+                  Edit Reservations
+                </DesktopNavLink>
               )}
               {isTeamLeader() && (
-                <DesktopNavLink to="/override-requests">Override Requests</DesktopNavLink>
+                <DesktopNavLink to="/override-requests">
+                  Override Requests
+                </DesktopNavLink>
               )}
               {isUserAdmin() && (
                 <DesktopNavLink to="/users">Users</DesktopNavLink>
@@ -131,19 +147,51 @@ function Layout() {
           {mobileMenuOpen && (
             <div className="md:hidden pb-3">
               <div className="flex flex-col space-y-1">
-                <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
-                <MobileNavLink to="/registration-numbers" onClick={() => setMobileMenuOpen(false)}>Registration Numbers</MobileNavLink>
+                <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>
+                  Home
+                </MobileNavLink>
+                <MobileNavLink
+                  to="/registration-numbers"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Registration Numbers
+                </MobileNavLink>
                 {isTeamLeader() && (
-                  <MobileNavLink to="/edit-reservations" onClick={() => setMobileMenuOpen(false)}>Edit Reservations</MobileNavLink>
+                  <MobileNavLink
+                    to="/edit-reservations"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Edit Reservations
+                  </MobileNavLink>
                 )}
                 {isTeamLeader() && (
-                  <MobileNavLink to="/override-requests" onClick={() => setMobileMenuOpen(false)}>Override Requests</MobileNavLink>
+                  <MobileNavLink
+                    to="/override-requests"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Override Requests
+                  </MobileNavLink>
                 )}
                 {isUserAdmin() && (
-                  <MobileNavLink to="/users" onClick={() => setMobileMenuOpen(false)}>Users</MobileNavLink>
+                  <MobileNavLink
+                    to="/users"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Users
+                  </MobileNavLink>
                 )}
-                <MobileNavLink to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</MobileNavLink>
-                <MobileNavLink to="/faq" onClick={() => setMobileMenuOpen(false)}>FAQ</MobileNavLink>
+                <MobileNavLink
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Profile
+                </MobileNavLink>
+                <MobileNavLink
+                  to="/faq"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  FAQ
+                </MobileNavLink>
                 <LogoutButton onClick={handleLogout} isMobile />
               </div>
             </div>

@@ -1,12 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuthContext } from "../../../../contexts/AuthContext";
 import { patch } from "../../helpers";
-import type { EditRequestsRequestBody, EditRequestsRequestResult } from "./types";
+import type {
+  EditRequestsRequestBody,
+  EditRequestsRequestResult,
+} from "./types";
 
 export const useEditRequests = () => {
   const endpoint = "requests";
   const queryClient = useQueryClient();
-  const { getAuthToken } = useAuth();
+  const { getToken: getAuthToken } = useAuthContext();
 
   const mutation = useMutation<
     EditRequestsRequestResult,
