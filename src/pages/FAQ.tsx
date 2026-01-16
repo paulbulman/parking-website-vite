@@ -118,8 +118,13 @@ function FAQ() {
             tester whose full-time job it is to find my mistakes... 😄) If
             something's not working as it says it should be, please create a bug
             report{" "}
-            <a href={`${import.meta.env.VITE_REPOSITORY_URL}/issues`}>here</a> -
-            or, even better, create a PR to fix it!
+            <a
+              className="text-blue-600 hover:text-blue-800"
+              href={`${import.meta.env.VITE_REPOSITORY_URL}/issues`}
+            >
+              here
+            </a>{" "}
+            - or, even better, create a PR to fix it!
           </p>
         </FAQItem>
 
@@ -130,7 +135,10 @@ function FAQ() {
             occasional extra parking space for myself 😛. If something's not
             working as it should be it's much more likely that there's a bug
             (see above), but you <em>can</em> see all the source code{" "}
-            <a href={`${import.meta.env.VITE_REPOSITORY_URL}/tree/main`}>
+            <a
+              className="text-blue-600 hover:text-blue-800"
+              href={`${import.meta.env.VITE_REPOSITORY_URL}/tree/main`}
+            >
               here
             </a>
             . Anything that's pushed to the main branch is live. Similarly for
@@ -159,8 +167,13 @@ function FAQ() {
             </li>
             <li>
               The site is hosted using{" "}
-              <a href="https://pages.cloudflare.com/">Cloudflare pages</a>,
-              which provides numerous security features including{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://pages.cloudflare.com/"
+              >
+                Cloudflare pages
+              </a>
+              , which provides numerous security features including{" "}
               <a
                 href={`https://www.ssllabs.com/ssltest/analyze.html?d=${
                   import.meta.env.VITE_APP_DOMAIN
@@ -173,9 +186,17 @@ function FAQ() {
             <li>
               Potential passwords are checked against the database of
               known-breached passwords at{" "}
-              <a href="https://haveibeenpwned.com/Passwords">Pwned Passwords</a>{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://haveibeenpwned.com/Passwords"
+              >
+                Pwned Passwords
+              </a>{" "}
               (using a{" "}
-              <a href="https://en.wikipedia.org/wiki/K-anonymity">
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://en.wikipedia.org/wiki/K-anonymity"
+              >
                 k-anonymity
               </a>{" "}
               model, meaning the <em>actual</em> password never leaves your
@@ -183,9 +204,17 @@ function FAQ() {
             </li>
             <li>
               The site is written using the{" "}
-              <a href="https://reactjs.org/">React library</a>, which helps
-              protect against e.g.{" "}
-              <a href="https://owasp.org/www-community/attacks/xss/">
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://reactjs.org/"
+              >
+                React library
+              </a>
+              , which helps protect against e.g.{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://owasp.org/www-community/attacks/xss/"
+              >
                 cross-site scripting (XSS)
               </a>{" "}
               attacks.
@@ -193,6 +222,7 @@ function FAQ() {
             <li>
               Many attack vectors are mitigated by{" "}
               <a
+                className="text-blue-600 hover:text-blue-800"
                 href={`https://securityheaders.com/?q=${
                   import.meta.env.VITE_APP_DOMAIN
                 }&hide=on&followRedirects=on`}
@@ -202,11 +232,31 @@ function FAQ() {
             </li>
             <li>
               The service runs on{" "}
-              <a href="https://aws.amazon.com/dynamodb/">various</a>{" "}
-              <a href="https://aws.amazon.com/lambda/">serverless</a>{" "}
-              <a href="https://aws.amazon.com/api-gateway/">AWS</a>{" "}
-              <a href="https://aws.amazon.com/cognito/">services</a>, meaning
-              that corresponding hosting environments are hopefully
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://aws.amazon.com/dynamodb/"
+              >
+                various
+              </a>{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://aws.amazon.com/lambda/"
+              >
+                serverless
+              </a>{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://aws.amazon.com/api-gateway/"
+              >
+                AWS
+              </a>{" "}
+              <a
+                className="text-blue-600 hover:text-blue-800"
+                href="https://aws.amazon.com/cognito/"
+              >
+                services
+              </a>
+              , meaning that corresponding hosting environments are hopefully
               automagically kept up-to-date and configured correctly, by people
               much cleverer than I am. I could still have set them up badly, of
               course, but this at least gives us a fighting chance.

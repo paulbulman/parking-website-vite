@@ -23,6 +23,7 @@ import DeleteUser from './pages/DeleteUser';
 import Profile from './pages/Profile';
 import FAQ from './pages/FAQ';
 import AccessDenied from './pages/AccessDenied';
+import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,6 +108,7 @@ function App() {
               <Route path="profile" element={<Profile />} />
               <Route path="faq" element={<FAQ />} />
               <Route path="access-denied" element={<AccessDenied />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
         </BrowserRouter>
