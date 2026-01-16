@@ -9,14 +9,14 @@ import type {
 export const useEditRequests = () => {
   const endpoint = "requests";
   const queryClient = useQueryClient();
-  const { getToken: getAuthToken } = useAuthContext();
+  const { getToken } = useAuthContext();
 
   const mutation = useMutation<
     EditRequestsRequestResult,
     Error,
     EditRequestsRequestBody
   >({
-    mutationFn: patch(getAuthToken, endpoint),
+    mutationFn: patch(getToken, endpoint),
     onSuccess: (data) => {
       queryClient.setQueryData([endpoint], data);
       queryClient.invalidateQueries({ queryKey: ["summary"] });

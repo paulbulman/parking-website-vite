@@ -9,14 +9,14 @@ import type {
 export const useEditReservations = () => {
   const endpoint = "reservations";
   const queryClient = useQueryClient();
-  const { getToken: getAuthToken } = useAuthContext();
+  const { getToken } = useAuthContext();
 
   const mutation = useMutation<
     EditReservationsRequestResult,
     Error,
     EditReservationsRequestBody
   >({
-    mutationFn: patch(getAuthToken, endpoint),
+    mutationFn: patch(getToken, endpoint),
     onSuccess: (data) => {
       queryClient.setQueryData([endpoint], data);
     },

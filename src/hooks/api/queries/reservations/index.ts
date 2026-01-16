@@ -6,10 +6,10 @@ import type { ReservationsRequestResult } from "./types";
 export const useReservations = () => {
   const endpoint = "reservations";
 
-  const { getToken: getAuthToken } = useAuthContext();
+  const { getToken } = useAuthContext();
 
   return useQuery({
     queryKey: [endpoint],
-    queryFn: () => get<ReservationsRequestResult>(getAuthToken, endpoint),
+    queryFn: () => get<ReservationsRequestResult>(getToken, endpoint),
   });
 };

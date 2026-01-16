@@ -6,11 +6,11 @@ import type { SummaryRequestResult } from "./types";
 export const useSummary = () => {
   const endpoint = "summary";
 
-  const { getToken: getAuthToken } = useAuthContext();
+  const { getToken } = useAuthContext();
 
   return useQuery({
     queryKey: [endpoint],
 
-    queryFn: () => get<SummaryRequestResult>(getAuthToken, endpoint),
+    queryFn: () => get<SummaryRequestResult>(getToken, endpoint),
   });
 };

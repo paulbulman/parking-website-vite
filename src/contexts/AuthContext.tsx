@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const getAuthToken = async (): Promise<string | undefined> => {
+  const getToken = async (): Promise<string | undefined> => {
     try {
       const session = await fetchAuthSession();
       return session.tokens?.idToken?.toString();
@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, logout, getToken: getAuthToken }}
+      value={{ isAuthenticated, login, logout, getToken }}
     >
       {children}
     </AuthContext.Provider>
