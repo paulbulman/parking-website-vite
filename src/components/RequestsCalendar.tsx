@@ -47,7 +47,12 @@ function RequestsCalendar({
                 return (
                   <td
                     key={dayIndex}
-                    className="border border-gray-300 p-4 text-center bg-white hover:bg-gray-50"
+                    onClick={() =>
+                      !readOnly && onCheckboxChange?.(day.localDate)
+                    }
+                    className={`border border-gray-300 p-4 text-center bg-white hover:bg-gray-50 ${
+                      !readOnly ? "cursor-pointer" : ""
+                    }`}
                   >
                     <div className="text-xs text-gray-600 mb-1">
                       {dayOfWeek}
@@ -59,11 +64,9 @@ function RequestsCalendar({
                       <input
                         type="checkbox"
                         checked={isChecked}
-                        onChange={() =>
-                          !readOnly && onCheckboxChange?.(day.localDate)
-                        }
+                        readOnly
                         disabled={readOnly}
-                        className="w-5 h-5 cursor-pointer disabled:cursor-not-allowed"
+                        className="w-5 h-5 pointer-events-none"
                       />
                     </div>
                   </td>
