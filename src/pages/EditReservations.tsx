@@ -1,27 +1,33 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useReservations } from "../hooks/api/queries/reservations";
+import { useEditReservations } from "../hooks/api/mutations/editReservations";
 
 function EditReservations() {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useReservations();
+  const { editReservations, isSaving } = useEditReservations();
 
   // State to track the selected users for each day
   // Structure: { [localDate]: string[] } where string[] is array of userIds
+  const [initialSelections, setInitialSelections] = useState<Record<string, string[]>>({});
   const [selections, setSelections] = useState<Record<string, string[]>>({});
 
   // Initialize selections when data loads
   useEffect(() => {
     if (data?.reservations) {
-      const initialSelections: Record<string, string[]> = {};
+      const initial: Record<string, string[]> = {};
 
       data.reservations.weeks.forEach((week) => {
         week.days.forEach((day) => {
           if (!day.hidden && day.data) {
-            initialSelections[day.localDate] = [...day.data.userIds];
+            initial[day.localDate] = [...day.data.userIds];
           }
         });
       });
 
-      setSelections(initialSelections);
+      setInitialSelections(initial);
+      setSelections(initial);
     }
   }, [data]);
 
@@ -39,6 +45,35 @@ function EditReservations() {
         [localDate]: newSelections,
       };
     });
+  };
+
+  const arraysEqual = (a: string[], b: string[]): boolean => {
+    if (a.length !== b.length) return false;
+    return a.every((val, index) => val === b[index]);
+  };
+
+  const handleSave = async () => {
+    try {
+      // Only send days where selections have changed
+      const reservationsArray = Object.entries(selections)
+        .filter(([localDate, userIds]) => {
+          const initial = initialSelections[localDate] || [];
+          return !arraysEqual(initial, userIds);
+        })
+        .map(([localDate, userIds]) => ({
+          localDate,
+          userIds: userIds.filter((id) => id !== ""), // Remove empty selections
+        }));
+
+      await editReservations({ reservations: reservationsArray });
+      navigate("/");
+    } catch (error) {
+      console.error("Error saving reservations:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate("/");
   };
 
   if (isLoading) {
@@ -76,7 +111,7 @@ function EditReservations() {
     <div className="py-8">
       <h1 className="text-3xl font-bold mb-6">Edit Reservations</h1>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto mb-6">
         <table className="min-w-full border-collapse border border-gray-300">
           <tbody>
             {reservations.weeks.map((week, weekIndex) => (
@@ -144,6 +179,23 @@ function EditReservations() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex gap-4">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+        >
+          {isSaving ? "Saving..." : "Save"}
+        </button>
+        <button
+          onClick={handleCancel}
+          disabled={isSaving}
+          className="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );
