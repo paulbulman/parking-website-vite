@@ -134,6 +134,73 @@ The navbar (`src/components/Layout.tsx`) conditionally displays items based on u
 - "Users" - only shown to UserAdmins
 - Works on both desktop and mobile layouts
 
+## Common Patterns
+
+### Calendar-Based Pages
+
+Many pages display data in a calendar format with a consistent structure:
+
+**Data Structure:**
+```typescript
+{
+  weeks: [
+    {
+      days: [
+        {
+          localDate: "2024-01-15",  // ISO date string
+          hidden: false,             // true for empty calendar cells
+          data: { /* day-specific data */ }
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Read-Only Calendar** (e.g., `Home.tsx`):
+- Directly renders data from the query
+- Uses color coding and status labels
+- No local state needed
+
+**Editable Calendar** (e.g., `EditReservations.tsx`):
+- Maintains local state initialized from query data
+- Pattern:
+  ```typescript
+  const [selections, setSelections] = useState<Record<string, DataType>>({});
+
+  useEffect(() => {
+    // Initialize from API data when it loads
+    const initial = {};
+    data.weeks.forEach(week => {
+      week.days.forEach(day => {
+        if (!day.hidden && day.data) {
+          initial[day.localDate] = day.data.value;
+        }
+      });
+    });
+    setSelections(initial);
+  }, [data]);
+  ```
+- User interactions update local state
+- State is later submitted via PATCH request
+
+### Permission Constants
+
+Permission strings are defined once in `src/hooks/usePermissions.ts`:
+```typescript
+export const USER_ADMIN = 'UserAdmin' as const;
+export const TEAM_LEADER = 'TeamLeader' as const;
+```
+
+Always import and use these constants instead of string literals:
+```typescript
+import { USER_ADMIN, TEAM_LEADER } from '../hooks/usePermissions';
+
+<PermissionGuard requiredPermissions={[TEAM_LEADER]}>
+```
+
+This ensures all references update together if permission strings change.
+
 ## ESLint Configuration
 
 Uses flat config format (`eslint.config.js`) with:
