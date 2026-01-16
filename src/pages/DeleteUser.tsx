@@ -1,14 +1,14 @@
 import { useNavigate, useParams } from "react-router";
 import { useDeleteUser } from "../hooks/api/mutations/deleteUser";
-import { useUsers } from "../hooks/api/queries/users";
+import { useUser } from "../hooks/api/queries/user";
 
 function DeleteUser() {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const { data, isLoading, error } = useUsers();
+  const { data, isLoading, error } = useUser({ userId: userId ?? "" });
   const { deleteUser, isDeleting } = useDeleteUser();
 
-  const user = data?.users.find((u) => u.userId === userId);
+  const user = data?.user;
 
   const handleDelete = async () => {
     if (!userId) return;
