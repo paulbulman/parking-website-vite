@@ -67,7 +67,7 @@ function Home() {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse border border-gray-300">
+        <table className="min-w-full border-collapse border border-gray-300 table-fixed">
           <tbody>
             {data?.summary.weeks.map((week, weekIndex) => (
               <tr key={weekIndex}>
@@ -76,7 +76,7 @@ function Home() {
                     return (
                       <td
                         key={dayIndex}
-                        className="border border-gray-300 p-0"
+                        className="border border-gray-300 p-0 w-1/5"
                       ></td>
                     );
                   }
@@ -95,7 +95,7 @@ function Home() {
                       onClick={() =>
                         navigate(`/daily-details/${day.localDate}`)
                       }
-                      className={`border border-gray-300 p-4 text-center cursor-pointer hover:opacity-80 ${statusColor} ${
+                      className={`border border-gray-300 p-4 text-center cursor-pointer hover:opacity-80 w-1/5 ${statusColor} ${
                         isProblem ? "ring-2 ring-red-500 ring-inset" : ""
                       }`}
                     >
