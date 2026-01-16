@@ -93,12 +93,19 @@ function FAQ() {
             please cancel your request. This means that if a space becomes
             available it can be given straight to someone who can still use it.
           </p>
+
           <p className="mt-2">
             If you've been interrupted, but have now made alternative
             arrangments <strong>to come into the office</strong>, you can choose
-            to stay interrupted using the "Stay interrupted" button on the daily
-            details page. Note that this will only be available if you were
-            interrupted when the final spaces were released for that day.
+            to stay interrupted using the "Stay interrupted" button on the{" "}
+            <Link
+              className="text-blue-600 hover:text-blue-800"
+              to={`/daily-details/${format(new Date(), "yyyy-MM-dd")}`}
+            >
+              daily details
+            </Link>{" "}
+            page. Note that this will only be available if you were interrupted
+            when the final spaces were released for that day.
           </p>
         </FAQItem>
 
