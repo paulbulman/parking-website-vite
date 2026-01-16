@@ -92,7 +92,10 @@ function Home() {
                   return (
                     <td
                       key={dayIndex}
-                      className={`border border-gray-300 p-4 text-center ${statusColor} ${
+                      onClick={() =>
+                        navigate(`/daily-details/${day.localDate}`)
+                      }
+                      className={`border border-gray-300 p-4 text-center cursor-pointer hover:opacity-80 ${statusColor} ${
                         isProblem ? "ring-2 ring-red-500 ring-inset" : ""
                       }`}
                     >
