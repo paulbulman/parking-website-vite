@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useProfile } from "../hooks/api/queries/profile";
 import { useEditProfile } from "../hooks/api/mutations/editProfile";
 import { useUserClaims } from "../hooks/useUserClaims";
