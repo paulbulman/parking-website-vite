@@ -1,40 +1,37 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
+import { confirmSignIn } from "aws-amplify/auth";
 import { useAuthContext } from "../contexts/AuthContext";
 
-function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+function SetPassword() {
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { refreshAuthStatus } = useAuthContext();
 
   const from = (location.state as { from?: string })?.from || "/";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const response = await login(username, password);
-
-      // Check if user needs to set a new password
-      if (
-        !response.isSignedIn &&
-        response.nextStep.signInStep === "CONFIRM_SIGN_IN_WITH_NEW_PASSWORD_REQUIRED"
-      ) {
-        navigate("/set-password", { state: { from }, replace: true });
-        return;
-      }
-
-      // Redirect to the page they tried to visit, or home
+      await confirmSignIn({ challengeResponse: newPassword });
+      await refreshAuthStatus();
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(err instanceof Error ? err.message : "Failed to set password");
     } finally {
       setIsLoading(false);
     }
@@ -42,22 +39,26 @@ function Login() {
 
   return (
     <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Login</h1>
+      <h1 className="text-3xl font-bold mb-6">Set New Password</h1>
 
       <div className="max-w-md bg-white rounded-lg shadow-md p-8">
+        <p className="mb-6 text-gray-700">
+          You need to set a new password for your account.
+        </p>
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
-              htmlFor="username"
+              htmlFor="newPassword"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Username
+              New Password
             </label>
             <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              id="newPassword"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
@@ -66,16 +67,16 @@ function Login() {
 
           <div className="mb-6">
             <label
-              htmlFor="password"
+              htmlFor="confirmPassword"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Password
+              Confirm Password
             </label>
             <input
-              id="password"
+              id="confirmPassword"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
@@ -93,7 +94,7 @@ function Login() {
             disabled={isLoading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isLoading ? "Setting password..." : "Set Password"}
           </button>
         </form>
       </div>
@@ -101,4 +102,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SetPassword;

@@ -10,13 +10,15 @@ import {
   signOut,
   getCurrentUser,
   fetchAuthSession,
+  type SignInOutput,
 } from "aws-amplify/auth";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<SignInOutput>;
   logout: () => void;
   getToken: () => Promise<string | undefined>;
+  refreshAuthStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -43,8 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     try {
-      await signIn({ username, password });
-      setIsAuthenticated(true);
+      const response = await signIn({ username, password });
+      console.log(response);
+
+      // Only set authenticated if fully signed in
+      if (response.isSignedIn) {
+        setIsAuthenticated(true);
+      }
+
+      return response;
     } catch (error) {
       setIsAuthenticated(false);
       if (error instanceof Error) {
@@ -80,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, login, logout, getToken }}
+      value={{ isAuthenticated, login, logout, getToken, refreshAuthStatus: checkAuthStatus }}
     >
       {children}
     </AuthContext.Provider>

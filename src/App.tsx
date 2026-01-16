@@ -7,6 +7,7 @@ import { USER_ADMIN, TEAM_LEADER } from './hooks/useUserClaims';
 import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import Login from './pages/Login';
+import SetPassword from './pages/SetPassword';
 import Home from './pages/Home';
 import DailyDetails from './pages/DailyDetails';
 import EditRequests from './pages/EditRequests';
@@ -38,6 +39,9 @@ function App() {
           <Routes>
             <Route path="/login" element={<PublicLayout />}>
               <Route index element={<Login />} />
+            </Route>
+            <Route path="/set-password" element={<PublicLayout />}>
+              <Route index element={<SetPassword />} />
             </Route>
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Home />} />
