@@ -26,7 +26,15 @@ function Users() {
 
   return (
     <div className="py-8">
-      <h1 className="text-3xl font-bold mb-4">Users</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-3xl font-bold">Users</h1>
+        <Link
+          to="/users/add"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Add User
+        </Link>
+      </div>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
