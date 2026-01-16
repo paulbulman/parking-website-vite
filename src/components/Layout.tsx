@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
 
 interface NavLinkProps {
   to: string;
@@ -58,6 +59,7 @@ function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { isTeamLeader, isUserAdmin } = usePermissions();
 
   const handleLogout = async () => {
     await logout();
@@ -74,9 +76,15 @@ function Layout() {
             <div className="hidden md:flex space-x-8">
               <DesktopNavLink to="/">Home</DesktopNavLink>
               <DesktopNavLink to="/registration-numbers">Registration Numbers</DesktopNavLink>
-              <DesktopNavLink to="/edit-reservations">Edit Reservations</DesktopNavLink>
-              <DesktopNavLink to="/override-requests">Override Requests</DesktopNavLink>
-              <DesktopNavLink to="/users">Users</DesktopNavLink>
+              {isTeamLeader() && (
+                <DesktopNavLink to="/edit-reservations">Edit Reservations</DesktopNavLink>
+              )}
+              {isTeamLeader() && (
+                <DesktopNavLink to="/override-requests">Override Requests</DesktopNavLink>
+              )}
+              {isUserAdmin() && (
+                <DesktopNavLink to="/users">Users</DesktopNavLink>
+              )}
             </div>
             <div className="hidden md:flex space-x-8">
               <DesktopNavLink to="/profile">Profile</DesktopNavLink>
@@ -125,9 +133,15 @@ function Layout() {
               <div className="flex flex-col space-y-1">
                 <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>Home</MobileNavLink>
                 <MobileNavLink to="/registration-numbers" onClick={() => setMobileMenuOpen(false)}>Registration Numbers</MobileNavLink>
-                <MobileNavLink to="/edit-reservations" onClick={() => setMobileMenuOpen(false)}>Edit Reservations</MobileNavLink>
-                <MobileNavLink to="/override-requests" onClick={() => setMobileMenuOpen(false)}>Override Requests</MobileNavLink>
-                <MobileNavLink to="/users" onClick={() => setMobileMenuOpen(false)}>Users</MobileNavLink>
+                {isTeamLeader() && (
+                  <MobileNavLink to="/edit-reservations" onClick={() => setMobileMenuOpen(false)}>Edit Reservations</MobileNavLink>
+                )}
+                {isTeamLeader() && (
+                  <MobileNavLink to="/override-requests" onClick={() => setMobileMenuOpen(false)}>Override Requests</MobileNavLink>
+                )}
+                {isUserAdmin() && (
+                  <MobileNavLink to="/users" onClick={() => setMobileMenuOpen(false)}>Users</MobileNavLink>
+                )}
                 <MobileNavLink to="/profile" onClick={() => setMobileMenuOpen(false)}>Profile</MobileNavLink>
                 <MobileNavLink to="/faq" onClick={() => setMobileMenuOpen(false)}>FAQ</MobileNavLink>
                 <LogoutButton onClick={handleLogout} isMobile />
