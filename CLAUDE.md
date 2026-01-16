@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a parking website built with React, TypeScript, and Vite. The project is currently in early stages with a minimal React + TypeScript + Vite template setup.
+This is a parking management website built with React, TypeScript, and Vite. The application handles parking space allocation, reservations, and requests with role-based access control.
 
 ## Development Commands
 
@@ -26,6 +26,11 @@ npm run preview
 
 - **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite 7
+- **Routing**: React Router v7.12
+- **Authentication**: AWS Cognito via AWS Amplify
+- **API Integration**: TanStack Query (React Query) for data fetching
+- **Styling**: Tailwind CSS
+- **JWT Handling**: jwt-decode for token parsing
 - **Linting**: ESLint 9 with TypeScript ESLint, React Hooks, and React Refresh plugins
 - **TypeScript**: v5.9.3 with strict mode enabled
 
@@ -41,12 +46,93 @@ Strict mode is enabled with additional checks:
 - `noUncheckedSideEffectImports`
 - `erasableSyntaxOnly`
 
-## Code Structure
+## Application Architecture
 
-- `src/main.tsx` - Application entry point that renders the root App component
-- `src/App.tsx` - Main application component
-- Entry point uses React 19's `createRoot` API with StrictMode enabled
-- Vite configuration is minimal with just the React plugin enabled
+### Authentication & Authorization
+
+**Authentication** is handled via AWS Cognito:
+- Configuration: `src/amplifyconfiguration.ts` (uses `VITE_USER_POOL_ID` and `VITE_USER_POOL_CLIENT_ID`)
+- Auth Context: `src/contexts/AuthContext.tsx` provides:
+  - `isAuthenticated` - boolean flag
+  - `login(username, password)` - sign in method
+  - `logout()` - sign out method
+  - `getAuthToken()` - retrieves JWT ID token for API calls
+
+**Authorization** uses JWT claims from Cognito:
+- Permissions Hook: `src/hooks/usePermissions.ts` decodes JWT and extracts `cognito:groups`
+- Two permission types:
+  - `UserAdmin` - Can access user management
+  - `TeamLeader` - Can access reservations and override requests
+- Permission Guard: `src/components/PermissionGuard.tsx` protects routes
+- Users without permission see: `src/pages/AccessDenied.tsx`
+
+### Routing Structure
+
+All routes defined in `src/App.tsx`:
+
+**Public Routes:**
+- `/login` - Login page
+
+**Protected Routes** (require authentication):
+- `/` - Home/Summary page (calendar view of parking allocations)
+- `/edit-requests` - Edit parking requests
+- `/registration-numbers` - Manage vehicle registration numbers
+- `/profile` - User profile
+- `/faq` - FAQ page
+
+**Permission-Protected Routes:**
+- `/edit-reservations` - Requires `TeamLeader` permission
+- `/override-requests` - Requires `TeamLeader` permission
+- `/users` - Requires `UserAdmin` permission
+- `/access-denied` - Shown when user lacks required permissions
+
+### API Integration
+
+API calls use TanStack Query with helpers in `src/hooks/api/helpers.ts`:
+- All requests include `Authorization: Bearer <token>` header
+- Token automatically fetched from Cognito session
+- Query hooks located in `src/hooks/api/queries/`
+- Example: `src/hooks/api/queries/summary.ts` - fetches parking summary data
+
+### Code Structure
+
+```
+src/
+├── main.tsx                    # Application entry point
+├── App.tsx                     # Router and provider configuration
+├── amplifyconfiguration.ts     # AWS Cognito configuration
+├── contexts/
+│   └── AuthContext.tsx         # Authentication state management
+├── hooks/
+│   ├── usePermissions.ts       # JWT permission extraction
+│   └── api/
+│       ├── helpers.ts          # API request utilities
+│       └── queries/            # React Query hooks
+├── components/
+│   ├── Layout.tsx              # Main layout with navbar (permission-aware)
+│   ├── PublicLayout.tsx        # Layout for public pages
+│   ├── ProtectedRoute.tsx      # Authentication guard
+│   └── PermissionGuard.tsx     # Authorization guard
+└── pages/
+    ├── Login.tsx
+    ├── Home.tsx                # Summary/calendar view
+    ├── EditRequests.tsx
+    ├── EditReservations.tsx    # TeamLeader only
+    ├── OverrideRequests.tsx    # TeamLeader only
+    ├── Users.tsx               # UserAdmin only
+    ├── AccessDenied.tsx        # Permission denied page
+    ├── Profile.tsx
+    ├── FAQ.tsx
+    └── RegistrationNumbers.tsx
+```
+
+### Navigation
+
+The navbar (`src/components/Layout.tsx`) conditionally displays items based on user permissions:
+- "Edit Reservations" - only shown to TeamLeaders
+- "Override Requests" - only shown to TeamLeaders
+- "Users" - only shown to UserAdmins
+- Works on both desktop and mobile layouts
 
 ## ESLint Configuration
 

@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PermissionGuard } from './components/PermissionGuard';
+import { USER_ADMIN, TEAM_LEADER } from './hooks/usePermissions';
 import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import Login from './pages/Login';
@@ -41,7 +42,7 @@ function App() {
               <Route
                 path="edit-reservations"
                 element={
-                  <PermissionGuard requiredPermissions={['TeamLeader']}>
+                  <PermissionGuard requiredPermissions={[TEAM_LEADER]}>
                     <EditReservations />
                   </PermissionGuard>
                 }
@@ -49,7 +50,7 @@ function App() {
               <Route
                 path="override-requests"
                 element={
-                  <PermissionGuard requiredPermissions={['TeamLeader']}>
+                  <PermissionGuard requiredPermissions={[TEAM_LEADER]}>
                     <OverrideRequests />
                   </PermissionGuard>
                 }
@@ -57,7 +58,7 @@ function App() {
               <Route
                 path="users"
                 element={
-                  <PermissionGuard requiredPermissions={['UserAdmin']}>
+                  <PermissionGuard requiredPermissions={[USER_ADMIN]}>
                     <Users />
                   </PermissionGuard>
                 }

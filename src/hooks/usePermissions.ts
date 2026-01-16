@@ -7,7 +7,10 @@ interface DecodedToken {
   [key: string]: unknown;
 }
 
-export type Permission = 'UserAdmin' | 'TeamLeader';
+export const USER_ADMIN = 'UserAdmin' as const;
+export const TEAM_LEADER = 'TeamLeader' as const;
+
+export type Permission = typeof USER_ADMIN | typeof TEAM_LEADER;
 
 export function usePermissions() {
   const { getAuthToken, isAuthenticated } = useAuth();
@@ -36,7 +39,7 @@ export function usePermissions() {
         // Filter to only valid permission types
         const validPermissions = groups.filter(
           (group): group is Permission =>
-            group === 'UserAdmin' || group === 'TeamLeader'
+            group === USER_ADMIN || group === TEAM_LEADER
         );
 
         setPermissions(validPermissions);
@@ -64,11 +67,11 @@ export function usePermissions() {
   };
 
   const isUserAdmin = (): boolean => {
-    return permissions.includes('UserAdmin');
+    return permissions.includes(USER_ADMIN);
   };
 
   const isTeamLeader = (): boolean => {
-    return permissions.includes('TeamLeader');
+    return permissions.includes(TEAM_LEADER);
   };
 
   return {
