@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import { useSummary } from "../hooks/api/queries/summary";
 
 function Home() {
+  const navigate = useNavigate();
   const { data, isLoading, error } = useSummary();
 
   if (isLoading) {
@@ -54,6 +56,15 @@ function Home() {
   return (
     <div className="py-8">
       <h1 className="text-3xl font-bold mb-6">Summary</h1>
+
+      <div className="mb-4">
+        <button
+          onClick={() => navigate("/edit-requests")}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Edit Requests
+        </button>
+      </div>
 
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse border border-gray-300">

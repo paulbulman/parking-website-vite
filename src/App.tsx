@@ -6,6 +6,7 @@ import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import EditRequests from './pages/EditRequests';
 import RegistrationNumbers from './pages/RegistrationNumbers';
 import EditReservations from './pages/EditReservations';
 import OverrideRequests from './pages/OverrideRequests';
@@ -18,7 +19,6 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
-      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
@@ -34,6 +34,7 @@ function App() {
             </Route>
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Home />} />
+              <Route path="edit-requests" element={<EditRequests />} />
               <Route path="registration-numbers" element={<RegistrationNumbers />} />
               <Route path="edit-reservations" element={<EditReservations />} />
               <Route path="override-requests" element={<OverrideRequests />} />
