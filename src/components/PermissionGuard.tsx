@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { usePermissions, type Permission } from '../hooks/usePermissions';
+import { useUserClaims, type Permission } from '../hooks/useUserClaims';
 
 interface PermissionGuardProps {
   children: ReactNode;
@@ -13,7 +13,7 @@ export function PermissionGuard({
   requiredPermissions,
   requireAll = false,
 }: PermissionGuardProps) {
-  const { isLoading, hasAnyPermission, hasAllPermissions } = usePermissions();
+  const { isLoading, hasAnyPermission, hasAllPermissions } = useUserClaims();
 
   if (isLoading) {
     return null;

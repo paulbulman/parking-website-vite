@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PermissionGuard } from './components/PermissionGuard';
-import { USER_ADMIN, TEAM_LEADER } from './hooks/usePermissions';
+import { USER_ADMIN, TEAM_LEADER } from './hooks/useUserClaims';
 import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import Login from './pages/Login';

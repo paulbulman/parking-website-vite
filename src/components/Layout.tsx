@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
-import { usePermissions } from "../hooks/usePermissions";
+import { useUserClaims } from "../hooks/useUserClaims";
 
 interface NavLinkProps {
   to: string;
@@ -69,7 +69,7 @@ function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { logout } = useAuthContext();
   const navigate = useNavigate();
-  const { isTeamLeader, isUserAdmin } = usePermissions();
+  const { isTeamLeader, isUserAdmin, firstName } = useUserClaims();
 
   const handleLogout = async () => {
     await logout();
@@ -103,7 +103,7 @@ function Layout() {
               )}
             </div>
             <div className="hidden md:flex space-x-8">
-              <DesktopNavLink to="/profile">Profile</DesktopNavLink>
+              <DesktopNavLink to="/profile">{firstName || 'Profile'}</DesktopNavLink>
               <DesktopNavLink to="/faq">FAQ</DesktopNavLink>
               <LogoutButton onClick={handleLogout} />
             </div>
@@ -184,7 +184,7 @@ function Layout() {
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Profile
+                  {firstName || 'Profile'}
                 </MobileNavLink>
                 <MobileNavLink
                   to="/faq"
