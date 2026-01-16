@@ -8,6 +8,8 @@ import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
 import Login from './pages/Login';
 import SetPassword from './pages/SetPassword';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
 import DailyDetails from './pages/DailyDetails';
 import EditRequests from './pages/EditRequests';
@@ -42,6 +44,12 @@ function App() {
             </Route>
             <Route path="/set-password" element={<PublicLayout />}>
               <Route index element={<SetPassword />} />
+            </Route>
+            <Route path="/forgot-password" element={<PublicLayout />}>
+              <Route index element={<ForgotPassword />} />
+            </Route>
+            <Route path="/reset-password" element={<PublicLayout />}>
+              <Route index element={<ResetPassword />} />
             </Route>
             <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Home />} />

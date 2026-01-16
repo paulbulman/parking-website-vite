@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router";
 import { useAuthContext } from "../contexts/AuthContext";
 
 function Login() {
@@ -91,10 +91,19 @@ function Login() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed mb-4"
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
+
+          <div className="text-center">
+            <Link
+              to="/forgot-password"
+              className="text-blue-600 hover:text-blue-800"
+            >
+              Forgot password?
+            </Link>
+          </div>
         </form>
       </div>
     </div>
