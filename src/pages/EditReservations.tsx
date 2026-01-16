@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useReservations } from "../hooks/api/queries/reservations";
 import { useEditReservations } from "../hooks/api/mutations/editReservations";
 
 function EditReservations() {
-  const navigate = useNavigate();
   const { data, isLoading, error } = useReservations();
   const { editReservations, isSaving } = useEditReservations();
 
@@ -12,6 +10,7 @@ function EditReservations() {
   // Structure: { [localDate]: string[] } where string[] is array of userIds
   const [initialSelections, setInitialSelections] = useState<Record<string, string[]>>({});
   const [selections, setSelections] = useState<Record<string, string[]>>({});
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   // Initialize selections when data loads
   useEffect(() => {
@@ -53,6 +52,8 @@ function EditReservations() {
   };
 
   const handleSave = async () => {
+    setSaveSuccess(false);
+
     try {
       // Only send days where selections have changed
       const reservationsArray = Object.entries(selections)
@@ -66,14 +67,14 @@ function EditReservations() {
         }));
 
       await editReservations({ reservations: reservationsArray });
-      navigate("/");
+
+      // Update initial selections to match current selections after successful save
+      setInitialSelections(selections);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error("Error saving reservations:", error);
     }
-  };
-
-  const handleCancel = () => {
-    navigate("/");
   };
 
   if (isLoading) {
@@ -181,7 +182,7 @@ function EditReservations() {
         </table>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         <button
           onClick={handleSave}
           disabled={isSaving}
@@ -189,13 +190,11 @@ function EditReservations() {
         >
           {isSaving ? "Saving..." : "Save"}
         </button>
-        <button
-          onClick={handleCancel}
-          disabled={isSaving}
-          className="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
-        >
-          Cancel
-        </button>
+        {saveSuccess && (
+          <span className="text-green-600 font-semibold">
+            Reservations saved successfully!
+          </span>
+        )}
       </div>
     </div>
   );
