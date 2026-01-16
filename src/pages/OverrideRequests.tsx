@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUsersList } from "../hooks/api/queries/usersList";
 import { useUserRequests } from "../hooks/api/queries/userRequests";
+import { useEditUserRequests } from "../hooks/api/mutations/editUserRequests";
 import RequestsCalendar from "../components/RequestsCalendar";
 
 function OverrideRequests() {
+  const navigate = useNavigate();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [initialRequests, setInitialRequests] = useState<Record<string, boolean>>({});
   const [requests, setRequests] = useState<Record<string, boolean>>({});
 
   const { data: usersListData, isLoading: isLoadingUsers, error: usersError } = useUsersList();
@@ -13,8 +17,9 @@ function OverrideRequests() {
     isLoading: isLoadingRequests,
     error: requestsError
   } = useUserRequests({ userId: selectedUserId });
+  const { editUserRequests, isSaving } = useEditUserRequests({ userId: selectedUserId });
 
-  // Initialize requests when user data loads
+  // Initialize requests when user data loads or user changes
   useEffect(() => {
     if (userRequestsData?.requests.weeks) {
       const initialState: Record<string, boolean> = {};
@@ -25,9 +30,43 @@ function OverrideRequests() {
           }
         });
       });
+      setInitialRequests(initialState);
       setRequests(initialState);
+    } else {
+      // Reset state when no data (e.g., user deselected)
+      setInitialRequests({});
+      setRequests({});
     }
   }, [userRequestsData]);
+
+  const handleCheckboxChange = (localDate: string) => {
+    setRequests((prev) => ({
+      ...prev,
+      [localDate]: !prev[localDate],
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!selectedUserId) return;
+
+    try {
+      const requestsArray = Object.entries(requests)
+        .filter(([localDate, requested]) => initialRequests[localDate] !== requested)
+        .map(([localDate, requested]) => ({
+          localDate,
+          requested,
+        }));
+
+      await editUserRequests({ requests: requestsArray });
+      navigate("/");
+    } catch (error) {
+      console.error("Error saving requests:", error);
+    }
+  };
+
+  const handleCancel = () => {
+    navigate("/");
+  };
 
   if (isLoadingUsers) {
     return (
@@ -83,11 +122,30 @@ function OverrideRequests() {
       )}
 
       {selectedUserId && userRequestsData?.requests && (
-        <RequestsCalendar
-          calendarData={userRequestsData.requests}
-          requests={requests}
-          readOnly
-        />
+        <>
+          <RequestsCalendar
+            calendarData={userRequestsData.requests}
+            requests={requests}
+            onCheckboxChange={handleCheckboxChange}
+          />
+
+          <div className="flex gap-4">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={isSaving}
+              className="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
+            >
+              Cancel
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
