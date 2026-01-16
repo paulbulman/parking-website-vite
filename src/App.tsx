@@ -13,6 +13,7 @@ import RegistrationNumbers from './pages/RegistrationNumbers';
 import EditReservations from './pages/EditReservations';
 import OverrideRequests from './pages/OverrideRequests';
 import Users from './pages/Users';
+import EditUser from './pages/EditUser';
 import DeleteUser from './pages/DeleteUser';
 import Profile from './pages/Profile';
 import FAQ from './pages/FAQ';
@@ -61,6 +62,14 @@ function App() {
                 element={
                   <PermissionGuard requiredPermissions={[USER_ADMIN]}>
                     <Users />
+                  </PermissionGuard>
+                }
+              />
+              <Route
+                path="users/edit/:userId"
+                element={
+                  <PermissionGuard requiredPermissions={[USER_ADMIN]}>
+                    <EditUser />
                   </PermissionGuard>
                 }
               />
