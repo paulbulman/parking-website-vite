@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSummary } from "../hooks/api/queries/summary";
+import { useRequests } from "../hooks/api/queries/requests";
 import { useEditRequests } from "../hooks/api/mutations/editRequests";
 import RequestsCalendar from "../components/RequestsCalendar";
 
 function EditRequests() {
   const navigate = useNavigate();
-  const { data, isLoading, error } = useSummary();
+  const { data, isLoading, error } = useRequests();
   const { editRequests, isSaving } = useEditRequests();
   const [initialRequests, setInitialRequests] = useState<Record<string, boolean>>({});
   const [requests, setRequests] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    if (data?.summary.weeks) {
+    if (data?.requests.weeks) {
       const initialState: Record<string, boolean> = {};
-      data.summary.weeks.forEach((week) => {
+      data.requests.weeks.forEach((week) => {
         week.days.forEach((day) => {
-          if (!day.hidden) {
-            initialState[day.localDate] = day.data?.status != null;
+          if (!day.hidden && day.data) {
+            initialState[day.localDate] = day.data.requested;
           }
         });
       });
@@ -75,9 +75,9 @@ function EditRequests() {
     <div className="py-8">
       <h1 className="text-3xl font-bold mb-6">Edit Requests</h1>
 
-      {data?.summary && (
+      {data?.requests && (
         <RequestsCalendar
-          calendarData={data.summary}
+          calendarData={data.requests}
           requests={requests}
           onCheckboxChange={handleCheckboxChange}
         />
