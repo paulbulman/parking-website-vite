@@ -78,7 +78,7 @@ function Layout() {
   };
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <nav className="bg-gray-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -103,7 +103,9 @@ function Layout() {
               )}
             </div>
             <div className="hidden md:flex space-x-8">
-              <DesktopNavLink to="/profile">{firstName || 'Profile'}</DesktopNavLink>
+              <DesktopNavLink to="/profile">
+                {firstName || "Profile"}
+              </DesktopNavLink>
               <DesktopNavLink to="/faq">FAQ</DesktopNavLink>
               <LogoutButton onClick={handleLogout} />
             </div>
@@ -184,7 +186,7 @@ function Layout() {
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  {firstName || 'Profile'}
+                  {firstName || "Profile"}
                 </MobileNavLink>
                 <MobileNavLink
                   to="/faq"
@@ -198,10 +200,25 @@ function Layout() {
           )}
         </div>
       </nav>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <Outlet />
       </div>
-    </>
+
+      <footer className="bg-gray-100 border-t border-gray-300 mt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="text-center text-sm text-gray-600">
+            <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
+              GNU General Public License v3
+            </a>{" "}
+            |{" "}
+            <NavLink to="/privacy" className="hover:text-gray-900">
+              Privacy Policy
+            </NavLink>
+          </div>
+        </div>
+      </footer>
+    </div>
   );
 }
 

@@ -22,6 +22,7 @@ import EditUser from './pages/EditUser';
 import DeleteUser from './pages/DeleteUser';
 import Profile from './pages/Profile';
 import FAQ from './pages/FAQ';
+import Privacy from './pages/Privacy';
 import AccessDenied from './pages/AccessDenied';
 import NotFound from './pages/NotFound';
 
@@ -107,6 +108,7 @@ function App() {
               />
               <Route path="profile" element={<Profile />} />
               <Route path="faq" element={<FAQ />} />
+              <Route path="privacy" element={<Privacy />} />
               <Route path="access-denied" element={<AccessDenied />} />
               <Route path="*" element={<NotFound />} />
             </Route>
