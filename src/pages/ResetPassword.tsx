@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { confirmResetPassword, signIn } from "aws-amplify/auth";
 import { useAuthContext } from "../contexts/AuthContext";
+import { pwnedPassword } from "hibp";
 
 function ResetPassword() {
   const [code, setCode] = useState("");
@@ -35,6 +36,14 @@ function ResetPassword() {
 
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+
+    const pwnedCount = await pwnedPassword(newPassword);
+    if (pwnedCount > 0) {
+      setError(
+        "The password is known to have been compromised in a public data breach. Please choose a different password."
+      );
       return;
     }
 
