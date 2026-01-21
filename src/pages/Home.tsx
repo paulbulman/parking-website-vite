@@ -1,9 +1,121 @@
 import { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useSummary } from "../hooks/api/queries/summary";
 
+interface DayData {
+  localDate: string;
+  hidden: boolean;
+  data?: {
+    status?: string | null;
+    isProblem?: boolean;
+  } | null;
+}
+
+const getStatusColor = (status: string | null | undefined) => {
+  switch (status) {
+    case "allocated":
+      return "bg-green-100 text-green-800";
+    case "pending":
+      return "bg-orange-100 text-orange-800";
+    case "interrupted":
+    case "hardInterrupted":
+      return "bg-red-100 text-red-800";
+    default:
+      return "bg-gray-50 text-gray-400";
+  }
+};
+
+const getStatusLabel = (status: string | null | undefined) => {
+  switch (status) {
+    case "allocated":
+      return { display: "Allocated", accessible: "Allocated" };
+    case "pending":
+      return { display: "Pending", accessible: "Pending" };
+    case "interrupted":
+    case "hardInterrupted":
+      return { display: "Interrupted", accessible: "Interrupted" };
+    default:
+      return { display: "-", accessible: "No status" };
+  }
+};
+
+const formatDate = (localDate: string) => {
+  const date = new Date(localDate);
+  return {
+    dayOfMonth: date.getDate(),
+    dayOfWeek: date.toLocaleDateString("en-GB", { weekday: "long" }),
+    dayOfWeekShort: date.toLocaleDateString("en-GB", { weekday: "short" }),
+    monthName: date.toLocaleDateString("en-GB", { month: "short" }),
+  };
+};
+
+interface DayLinkProps {
+  day: DayData;
+  variant: "mobile" | "desktop";
+}
+
+function DayLink({ day, variant }: DayLinkProps) {
+  const { dayOfMonth, dayOfWeek, dayOfWeekShort, monthName } = formatDate(
+    day.localDate
+  );
+  const statusColor = getStatusColor(day.data?.status);
+  const status = getStatusLabel(day.data?.status);
+  const isProblem = day.data?.isProblem;
+
+  const accessibleName = `${dayOfWeek} ${dayOfMonth} ${monthName}, ${status.accessible}`;
+
+  if (variant === "mobile") {
+    return (
+      <Link
+        to={`/daily-details/${day.localDate}`}
+        aria-label={accessibleName}
+        className={`block rounded p-4 hover:opacity-80 ${statusColor} ${
+          isProblem ? "ring-2 ring-red-500 ring-inset" : ""
+        }`}
+      >
+        <div className="text-sm text-gray-600 mb-1" aria-hidden="true">
+          {dayOfWeekShort}
+        </div>
+        <time
+          dateTime={day.localDate}
+          className="block text-xl font-semibold mb-1"
+          aria-hidden="true"
+        >
+          {dayOfMonth} {monthName}
+        </time>
+        <div className="text-sm font-medium" aria-hidden="true">
+          {status.display}
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      to={`/daily-details/${day.localDate}`}
+      aria-label={accessibleName}
+      className={`block p-4 text-center hover:opacity-80 h-full ${statusColor} ${
+        isProblem ? "ring-2 ring-red-500 ring-inset" : ""
+      }`}
+    >
+      <div className="text-xs text-gray-600 mb-1" aria-hidden="true">
+        {dayOfWeekShort}
+      </div>
+      <time
+        dateTime={day.localDate}
+        className="block text-lg font-semibold mb-1"
+        aria-hidden="true"
+      >
+        {dayOfMonth} {monthName}
+      </time>
+      <div className="text-sm font-medium" aria-hidden="true">
+        {status.display}
+      </div>
+    </Link>
+  );
+}
+
 function Home() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { data, isLoading, error } = useSummary();
 
@@ -30,63 +142,26 @@ function Home() {
     );
   }
 
-  const getStatusColor = (status: string | null | undefined) => {
-    switch (status) {
-      case "allocated":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-orange-100 text-orange-800";
-      case "interrupted":
-      case "hardInterrupted":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-50 text-gray-400";
-    }
-  };
-
-  const getStatusLabel = (status: string | null | undefined) => {
-    switch (status) {
-      case "allocated":
-        return "Allocated";
-      case "pending":
-        return "Pending";
-      case "interrupted":
-      case "hardInterrupted":
-        return "Interrupted";
-      default:
-        return "-";
-    }
-  };
-
   const weeks = data?.summary.weeks ?? [];
   const currentWeek = weeks[currentWeekIndex];
   const hasPreviousWeek = currentWeekIndex > 0;
   const hasNextWeek = currentWeekIndex < weeks.length - 1;
-
-  const formatDate = (localDate: string) => {
-    const date = new Date(localDate);
-    return {
-      dayOfMonth: date.getDate(),
-      dayOfWeek: date.toLocaleDateString("en-GB", { weekday: "short" }),
-      monthName: date.toLocaleDateString("en-GB", { month: "short" }),
-    };
-  };
 
   return (
     <div className="py-8">
       <h1 className="text-3xl font-bold mb-6">Summary</h1>
 
       <div className="mb-4">
-        <button
-          onClick={() => navigate(`/edit-requests?week=${currentWeekIndex}`)}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        <Link
+          to={`/edit-requests?week=${currentWeekIndex}`}
+          className="inline-block px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
           Edit Requests
-        </button>
+        </Link>
       </div>
 
       {/* Mobile view - single column with week navigation */}
-      <div className="block md:hidden">
+      <nav className="block md:hidden" aria-label="Weekly summary">
         <div className="flex gap-2 mb-4">
           <button
             onClick={() => setCurrentWeekIndex((prev) => Math.max(0, prev - 1))}
@@ -108,39 +183,20 @@ function Home() {
           </button>
         </div>
 
-        <div className="space-y-3">
-          {currentWeek?.days.map((day, dayIndex) => {
+        <ul className="space-y-3">
+          {currentWeek?.days.map((day) => {
             if (day.hidden) return null;
-
-            const { dayOfMonth, dayOfWeek, monthName } = formatDate(
-              day.localDate
-            );
-            const statusColor = getStatusColor(day.data?.status);
-            const isProblem = day.data?.isProblem;
-
             return (
-              <div
-                key={dayIndex}
-                onClick={() => navigate(`/daily-details/${day.localDate}`)}
-                className={`rounded p-4 cursor-pointer hover:opacity-80 ${statusColor} ${
-                  isProblem ? "ring-2 ring-red-500 ring-inset" : ""
-                }`}
-              >
-                <div className="text-sm text-gray-600 mb-1">{dayOfWeek}</div>
-                <div className="text-xl font-semibold mb-1">
-                  {dayOfMonth} {monthName}
-                </div>
-                <div className="text-sm font-medium">
-                  {getStatusLabel(day.data?.status)}
-                </div>
-              </div>
+              <li key={day.localDate}>
+                <DayLink day={day} variant="mobile" />
+              </li>
             );
           })}
-        </div>
-      </div>
+        </ul>
+      </nav>
 
       {/* Desktop view - table with all weeks */}
-      <div className="hidden md:block overflow-x-auto">
+      <nav className="hidden md:block overflow-x-auto" aria-label="Weekly summary">
         <table className="min-w-full border-collapse border border-gray-300 table-fixed">
           <tbody>
             {weeks.map((week, weekIndex) => (
@@ -155,31 +211,12 @@ function Home() {
                     );
                   }
 
-                  const { dayOfMonth, dayOfWeek, monthName } = formatDate(
-                    day.localDate
-                  );
-                  const statusColor = getStatusColor(day.data?.status);
-                  const isProblem = day.data?.isProblem;
-
                   return (
                     <td
-                      key={dayIndex}
-                      onClick={() =>
-                        navigate(`/daily-details/${day.localDate}`)
-                      }
-                      className={`border border-gray-300 p-4 text-center cursor-pointer hover:opacity-80 w-1/5 ${statusColor} ${
-                        isProblem ? "ring-2 ring-red-500 ring-inset" : ""
-                      }`}
+                      key={day.localDate}
+                      className="border border-gray-300 p-0 w-1/5"
                     >
-                      <div className="text-xs text-gray-600 mb-1">
-                        {dayOfWeek}
-                      </div>
-                      <div className="text-lg font-semibold mb-1">
-                        {dayOfMonth} {monthName}
-                      </div>
-                      <div className="text-sm font-medium">
-                        {getStatusLabel(day.data?.status)}
-                      </div>
+                      <DayLink day={day} variant="desktop" />
                     </td>
                   );
                 })}
@@ -187,7 +224,7 @@ function Home() {
             ))}
           </tbody>
         </table>
-      </div>
+      </nav>
     </div>
   );
 }
