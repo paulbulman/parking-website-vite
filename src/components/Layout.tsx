@@ -53,7 +53,7 @@ function LogoutButton({
 }) {
   const baseClasses = "text-sm font-medium rounded-md hover:bg-gray-700";
   const desktopClasses = "flex items-center px-3 py-2";
-  const mobileClasses = "px-3 py-2";
+  const mobileClasses = "px-3 py-2 text-left";
 
   return (
     <button

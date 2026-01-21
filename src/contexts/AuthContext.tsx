@@ -46,9 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (username: string, password: string) => {
     try {
       const response = await signIn({ username, password });
-      console.log(response);
 
-      // Only set authenticated if fully signed in
+      // Only set authenticated if fully signed in (not e.g. change password required)
       if (response.isSignedIn) {
         setIsAuthenticated(true);
       }

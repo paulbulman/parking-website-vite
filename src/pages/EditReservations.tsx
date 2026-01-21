@@ -2,6 +2,75 @@ import { useState, useEffect } from "react";
 import { useReservations } from "../hooks/api/queries/reservations";
 import { useEditReservations } from "../hooks/api/mutations/editReservations";
 
+interface User {
+  userId: string;
+  name: string;
+}
+
+interface DayHeaderProps {
+  localDate: string;
+  dayOfWeekClassName?: string;
+  dateClassName?: string;
+}
+
+function DayHeader({
+  localDate,
+  dayOfWeekClassName = "",
+  dateClassName = "",
+}: DayHeaderProps) {
+  const date = new Date(localDate);
+  const dayOfMonth = date.getDate();
+  const dayOfWeek = date.toLocaleDateString("en-GB", { weekday: "short" });
+  const monthName = date.toLocaleDateString("en-GB", { month: "short" });
+
+  return (
+    <>
+      <div className={dayOfWeekClassName}>{dayOfWeek}</div>
+      <div className={dateClassName}>
+        {dayOfMonth} {monthName}
+      </div>
+    </>
+  );
+}
+
+interface ReservationDropdownsProps {
+  localDate: string;
+  users: User[];
+  shortLeadTimeSpaces: number;
+  currentSelections: string[];
+  onSelectionChange: (localDate: string, index: number, userId: string) => void;
+  dropdownClassName?: string;
+}
+
+function ReservationDropdowns({
+  localDate,
+  users,
+  shortLeadTimeSpaces,
+  currentSelections,
+  onSelectionChange,
+  dropdownClassName = "",
+}: ReservationDropdownsProps) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: shortLeadTimeSpaces }).map((_, index) => (
+        <select
+          key={index}
+          value={currentSelections[index] || ""}
+          onChange={(e) => onSelectionChange(localDate, index, e.target.value)}
+          className={dropdownClassName}
+        >
+          <option value="">None</option>
+          {users.map((user) => (
+            <option key={user.userId} value={user.userId}>
+              {user.name}
+            </option>
+          ))}
+        </select>
+      ))}
+    </div>
+  );
+}
+
 function EditReservations() {
   const { data, isLoading, error } = useReservations();
   const { editReservations, isSaving } = useEditReservations();
@@ -13,6 +82,9 @@ function EditReservations() {
   >({});
   const [selections, setSelections] = useState<Record<string, string[]>>({});
   const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // State for mobile week navigation
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
 
   // Initialize selections when data loads
   useEffect(() => {
@@ -110,11 +182,72 @@ function EditReservations() {
 
   const { users, shortLeadTimeSpaces, reservations } = data;
 
+  const currentWeek = reservations.weeks[currentWeekIndex];
+  const hasPreviousWeek = currentWeekIndex > 0;
+  const hasNextWeek = currentWeekIndex < reservations.weeks.length - 1;
+
   return (
     <div className="py-8">
       <h1 className="text-3xl font-bold mb-6">Edit Reservations</h1>
 
-      <div className="overflow-x-auto mb-6">
+      {/* Mobile view - single column with week navigation */}
+      <div className="block md:hidden mb-6">
+        {/* Week navigation buttons */}
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => setCurrentWeekIndex((prev) => Math.max(0, prev - 1))}
+            disabled={!hasPreviousWeek}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+          >
+            Previous week
+          </button>
+          <button
+            onClick={() =>
+              setCurrentWeekIndex((prev) =>
+                Math.min(reservations.weeks.length - 1, prev + 1)
+              )
+            }
+            disabled={!hasNextWeek}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+          >
+            Next week
+          </button>
+        </div>
+
+        {/* Single column day cards */}
+        <div className="space-y-4">
+          {currentWeek.days.map((day, dayIndex) => {
+            if (day.hidden) return null;
+
+            const currentSelections = selections[day.localDate] || [];
+
+            return (
+              <div
+                key={dayIndex}
+                className="border border-gray-300 rounded p-4 bg-white"
+              >
+                <DayHeader
+                  localDate={day.localDate}
+                  dayOfWeekClassName="text-sm text-gray-600 mb-1"
+                  dateClassName="text-xl font-semibold mb-3"
+                />
+
+                <ReservationDropdowns
+                  localDate={day.localDate}
+                  users={users}
+                  shortLeadTimeSpaces={shortLeadTimeSpaces}
+                  currentSelections={currentSelections}
+                  onSelectionChange={handleSelectionChange}
+                  dropdownClassName="w-full px-3 py-2 text-base border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Desktop view - table with all weeks */}
+      <div className="hidden md:block overflow-x-auto mb-6">
         <table className="min-w-full border-collapse border border-gray-300">
           <tbody>
             {reservations.weeks.map((week, weekIndex) => (
@@ -129,15 +262,6 @@ function EditReservations() {
                     );
                   }
 
-                  const date = new Date(day.localDate);
-                  const dayOfMonth = date.getDate();
-                  const dayOfWeek = date.toLocaleDateString("en-GB", {
-                    weekday: "short",
-                  });
-                  const monthName = date.toLocaleDateString("en-GB", {
-                    month: "short",
-                  });
-
                   const currentSelections = selections[day.localDate] || [];
 
                   return (
@@ -145,39 +269,20 @@ function EditReservations() {
                       key={dayIndex}
                       className="border border-gray-300 p-4 text-center bg-white align-top"
                     >
-                      <div className="text-xs text-gray-600 mb-1">
-                        {dayOfWeek}
-                      </div>
-                      <div className="text-lg font-semibold mb-3">
-                        {dayOfMonth} {monthName}
-                      </div>
+                      <DayHeader
+                        localDate={day.localDate}
+                        dayOfWeekClassName="text-xs text-gray-600 mb-1"
+                        dateClassName="text-lg font-semibold mb-3"
+                      />
 
-                      {/* Render dropdowns based on shortLeadTimeSpaces */}
-                      <div className="space-y-2">
-                        {Array.from({ length: shortLeadTimeSpaces }).map(
-                          (_, index) => (
-                            <select
-                              key={index}
-                              value={currentSelections[index] || ""}
-                              onChange={(e) =>
-                                handleSelectionChange(
-                                  day.localDate,
-                                  index,
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                              <option value="">None</option>
-                              {users.map((user) => (
-                                <option key={user.userId} value={user.userId}>
-                                  {user.name}
-                                </option>
-                              ))}
-                            </select>
-                          )
-                        )}
-                      </div>
+                      <ReservationDropdowns
+                        localDate={day.localDate}
+                        users={users}
+                        shortLeadTimeSpaces={shortLeadTimeSpaces}
+                        currentSelections={currentSelections}
+                        onSelectionChange={handleSelectionChange}
+                        dropdownClassName="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
                     </td>
                   );
                 })}

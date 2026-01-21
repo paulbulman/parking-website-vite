@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRequests } from "../hooks/api/queries/requests";
 import { useEditRequests } from "../hooks/api/mutations/editRequests";
 import RequestsCalendar from "../components/RequestsCalendar";
 
 function EditRequests() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { data, isLoading, error } = useRequests();
   const { editRequests, isSaving } = useEditRequests();
   const [initialRequests, setInitialRequests] = useState<Record<string, boolean>>({});
   const [requests, setRequests] = useState<Record<string, boolean>>({});
+
+  const initialWeekIndex = parseInt(searchParams.get("week") ?? "0", 10) || 0;
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(initialWeekIndex);
 
   useEffect(() => {
     if (data?.requests.weeks) {
@@ -43,14 +47,14 @@ function EditRequests() {
         }));
 
       await editRequests({ requests: requestsArray });
-      navigate("/");
+      navigate(`/?week=${currentWeekIndex}`);
     } catch (error) {
       console.error("Error saving requests:", error);
     }
   };
 
   const handleCancel = () => {
-    navigate("/");
+    navigate(`/?week=${currentWeekIndex}`);
   };
 
   if (isLoading) {
@@ -80,6 +84,8 @@ function EditRequests() {
           calendarData={data.requests}
           requests={requests}
           onCheckboxChange={handleCheckboxChange}
+          initialWeekIndex={initialWeekIndex}
+          onWeekChange={setCurrentWeekIndex}
         />
       )}
 
