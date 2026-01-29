@@ -1,4 +1,0 @@
-import type { operations } from "../../types";
-
-export type DailyDetailsRequestResult =
-  operations["DailyDetails_Get"]["responses"]["200"]["content"]["application/json"];

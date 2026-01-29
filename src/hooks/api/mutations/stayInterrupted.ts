@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { patch } from "../../helpers";
-import type {
-  StayInterruptedRequestBody,
-  StayInterruptedRequestResult,
-} from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { patch } from "../helpers";
+import type { operations } from "../types";
+
+type StayInterruptedRequestBody =
+  operations["DailyDetails_Patch"]["requestBody"]["content"]["application/json"];
+type StayInterruptedRequestResult =
+  operations["DailyDetails_Patch"]["responses"]["200"]["content"]["application/json"];
 
 export const useStayInterrupted = () => {
   const endpoint = "stayInterrupted";

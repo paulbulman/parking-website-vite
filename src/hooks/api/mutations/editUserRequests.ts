@@ -1,11 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { patch } from "../../helpers";
-import type {
-  EditUserRequestsRequestParameters,
-  EditUserRequestsRequestBody,
-  EditUserRequestsRequestResult,
-} from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { patch } from "../helpers";
+import type { operations } from "../types";
+
+type EditUserRequestsRequestParameters =
+  operations["Requests_PatchById"]["parameters"]["path"];
+type EditUserRequestsRequestBody =
+  operations["Requests_PatchById"]["requestBody"]["content"]["application/json"];
+type EditUserRequestsRequestResult =
+  operations["Requests_PatchById"]["responses"]["200"]["content"]["application/json"];
 
 export const useEditUserRequests = ({
   userId,

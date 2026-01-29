@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { post } from "../../helpers";
-import type { AddUserRequestBody, AddUserRequestResult } from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { post } from "../helpers";
+import type { operations } from "../types";
+
+type AddUserRequestBody =
+  operations["Users_Post"]["requestBody"]["content"]["application/json"];
+type AddUserRequestResult =
+  operations["Users_Post"]["responses"]["200"]["content"]["application/json"];
 
 export const useAddUser = () => {
   const endpoint = "users";

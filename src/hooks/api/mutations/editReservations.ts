@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { patch } from "../../helpers";
-import type {
-  EditReservationsRequestBody,
-  EditReservationsRequestResult,
-} from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { patch } from "../helpers";
+import type { operations } from "../types";
+
+type EditReservationsRequestBody =
+  operations["Reservations_Patch"]["requestBody"]["content"]["application/json"];
+type EditReservationsRequestResult =
+  operations["Reservations_Patch"]["responses"]["200"]["content"]["application/json"];
 
 export const useEditReservations = () => {
   const endpoint = "reservations";

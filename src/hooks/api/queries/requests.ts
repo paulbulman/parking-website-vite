@@ -1,7 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { get } from "../../helpers";
-import type { RequestsRequestResult } from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { get } from "../helpers";
+import type { operations } from "../types";
+
+type RequestsRequestResult =
+  operations["Requests_Get"]["responses"]["200"]["content"]["application/json"];
 
 export const useRequests = () => {
   const endpoint = "requests";

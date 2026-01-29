@@ -1,7 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { patch } from "../../helpers";
-import type { EditProfileRequestBody, EditProfileRequestResult } from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { patch } from "../helpers";
+import type { operations } from "../types";
+
+type EditProfileRequestBody =
+  operations["Profiles_Patch"]["requestBody"]["content"]["application/json"];
+type EditProfileRequestResult =
+  operations["Profiles_Patch"]["responses"]["200"]["content"]["application/json"];
 
 export const useEditProfile = () => {
   const endpoint = "profiles";

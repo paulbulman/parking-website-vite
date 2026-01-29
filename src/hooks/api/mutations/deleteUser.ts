@@ -1,7 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import { useAuthContext } from "../../../../contexts/AuthContext";
-import { httpDelete } from "../../helpers";
-import type { DeleteUserRequestParameters, DeleteUserRequestResult } from "./types";
+import { useAuthContext } from "../../../contexts/AuthContext";
+import { httpDelete } from "../helpers";
+import type { operations } from "../types";
+
+type DeleteUserRequestParameters =
+  operations["Users_Delete"]["parameters"]["path"];
+type DeleteUserRequestResult =
+  operations["Users_Delete"]["responses"]["204"];
 
 export const useDeleteUser = () => {
   const endpoint = "users";
