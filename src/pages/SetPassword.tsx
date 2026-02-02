@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import { confirmSignIn } from "aws-amplify/auth";
 import { useAuthContext } from "../contexts/useAuthContext";
 import { pwnedPassword } from "hibp";
+import { Button, Input, Card, Alert } from "../components/ui";
 
 function SetPassword() {
   const [newPassword, setNewPassword] = useState("");
@@ -16,7 +17,6 @@ function SetPassword() {
 
   const from = (location.state as { from?: string })?.from || "/";
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate(from, { replace: true });
@@ -54,65 +54,48 @@ function SetPassword() {
   };
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Set New Password</h1>
+    <div className="min-h-[60vh] flex items-start justify-center pt-12">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-[var(--color-text)]">
+            Set New Password
+          </h1>
+          <p className="mt-2 text-[var(--color-text-secondary)]">
+            You need to set a new password for your account.
+          </p>
+        </div>
 
-      <div className="max-w-md bg-white rounded-lg shadow-md p-8">
-        <p className="mb-6 text-gray-700">
-          You need to set a new password for your account.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="newPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              New Password
-            </label>
-            <input
+        <Card elevated>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
               id="newPassword"
+              label="New Password"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
+              autoComplete="new-password"
             />
-          </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Confirm Password
-            </label>
-            <input
+            <Input
               id="confirmPassword"
+              label="Confirm Password"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
+              autoComplete="new-password"
             />
-          </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
+            {error && <Alert variant="error">{error}</Alert>}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isLoading ? "Setting password..." : "Set Password"}
-          </button>
-        </form>
+            <Button type="submit" disabled={isLoading} className="w-full">
+              {isLoading ? "Setting password..." : "Set Password"}
+            </Button>
+          </form>
+        </Card>
       </div>
     </div>
   );

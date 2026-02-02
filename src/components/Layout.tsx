@@ -14,10 +14,10 @@ function DesktopNavLink({ to, children }: NavLinkProps) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+        `flex items-center px-3 py-2 text-sm font-medium rounded transition-colors ${
           isActive
-            ? "bg-gray-900 border-b-2 border-blue-500"
-            : "hover:bg-gray-700"
+            ? "bg-[var(--color-nav-active)] text-white"
+            : "text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white"
         }`
       }
     >
@@ -31,10 +31,10 @@ function MobileNavLink({ to, children, onClick }: NavLinkProps) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `px-3 py-2 text-sm font-medium rounded-md ${
+        `block px-4 py-2.5 text-sm font-medium rounded transition-colors ${
           isActive
-            ? "bg-gray-900 border-l-4 border-blue-500"
-            : "hover:bg-gray-700"
+            ? "bg-[var(--color-nav-active)] text-white border-l-3 border-[var(--color-primary)]"
+            : "text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white"
         }`
       }
       onClick={onClick}
@@ -51,14 +51,12 @@ function LogoutButton({
   onClick: () => void;
   isMobile?: boolean;
 }) {
-  const baseClasses = "text-sm font-medium rounded-md hover:bg-gray-700";
-  const desktopClasses = "flex items-center px-3 py-2";
-  const mobileClasses = "px-3 py-2 text-left";
-
   return (
     <button
       onClick={onClick}
-      className={`${baseClasses} ${isMobile ? mobileClasses : desktopClasses}`}
+      className={`text-sm font-medium text-gray-300 rounded transition-colors hover:bg-[var(--color-nav-hover)] hover:text-white ${
+        isMobile ? "block w-full text-left px-4 py-2.5" : "px-3 py-2"
+      }`}
     >
       Logout
     </button>
@@ -79,11 +77,11 @@ function Layout() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <nav className="bg-gray-800 text-white">
+      <nav className="bg-[var(--color-nav)] shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-14">
             {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-8">
+            <div className="hidden md:flex items-center gap-1">
               <DesktopNavLink to="/">Home</DesktopNavLink>
               <DesktopNavLink to="/registration-numbers">
                 Registration Numbers
@@ -102,7 +100,7 @@ function Layout() {
                 <DesktopNavLink to="/users">Users</DesktopNavLink>
               )}
             </div>
-            <div className="hidden md:flex space-x-8">
+            <div className="hidden md:flex items-center gap-1">
               <DesktopNavLink to="/profile">
                 {firstName || "Profile"}
               </DesktopNavLink>
@@ -114,11 +112,10 @@ function Layout() {
             <div className="md:hidden flex items-center">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md hover:bg-gray-700 focus:outline-none"
-                aria-expanded="false"
+                className="inline-flex items-center justify-center p-2 rounded text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white transition-colors"
+                aria-expanded={mobileMenuOpen}
               >
                 <span className="sr-only">Open main menu</span>
-                {/* Hamburger icon */}
                 <svg
                   className="h-6 w-6"
                   fill="none"
@@ -147,8 +144,8 @@ function Layout() {
 
           {/* Mobile menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden pb-3">
-              <div className="flex flex-col space-y-1">
+            <div className="md:hidden pb-4 pt-2 border-t border-gray-700">
+              <div className="flex flex-col gap-1">
                 <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>
                   Home
                 </MobileNavLink>
@@ -201,18 +198,24 @@ function Layout() {
         </div>
       </nav>
 
-      <div className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8">
         <Outlet />
-      </div>
+      </main>
 
-      <footer className="bg-gray-100 border-t border-gray-300 mt-8">
+      <footer className="bg-[var(--color-surface)] border-t border-[var(--color-border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="text-center text-sm text-gray-600">
-            <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
+          <div className="text-center text-sm text-[var(--color-text-muted)]">
+            <a
+              href="https://www.gnu.org/licenses/gpl-3.0.en.html"
+              className="hover:text-[var(--color-text-secondary)] transition-colors"
+            >
               GNU General Public License v3
             </a>{" "}
             |{" "}
-            <NavLink to="/privacy" className="hover:text-gray-900">
+            <NavLink
+              to="/privacy"
+              className="hover:text-[var(--color-text-secondary)] transition-colors"
+            >
               Privacy Policy
             </NavLink>
           </div>

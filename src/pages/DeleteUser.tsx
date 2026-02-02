@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router";
 import { useDeleteUser } from "../hooks/api/mutations/deleteUser";
 import { useUser } from "../hooks/api/queries/user";
+import { Button, Card, PageHeader, Alert } from "../components/ui";
 
 function DeleteUser() {
   const { userId } = useParams<{ userId: string }>();
@@ -27,80 +28,89 @@ function DeleteUser() {
 
   if (isLoading) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Delete User</h1>
-        <p>Loading user details...</p>
+      <div>
+        <PageHeader title="Delete User" />
+        <p className="text-[var(--color-text-secondary)]">
+          Loading user details...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Delete User</h1>
-        <p className="text-red-600">Error loading user: {error.message}</p>
+      <div>
+        <PageHeader title="Delete User" />
+        <p className="text-[var(--color-danger)]">
+          Error loading user: {error.message}
+        </p>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Delete User</h1>
-        <p className="text-red-600">User not found.</p>
-        <button
-          onClick={handleCancel}
-          className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-        >
+      <div>
+        <PageHeader title="Delete User" />
+        <p className="text-[var(--color-danger)] mb-4">User not found.</p>
+        <Button variant="secondary" onClick={handleCancel}>
           Back to Users
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-4">Delete User</h1>
-      <div className="bg-white border border-gray-300 rounded p-6 max-w-2xl">
-        <p className="text-lg mb-4">
+    <div>
+      <PageHeader title="Delete User" />
+
+      <Card className="max-w-2xl">
+        <p className="text-lg text-[var(--color-text)] mb-4">
           Are you sure you want to delete the following user?
         </p>
-        <div className="bg-gray-50 p-4 rounded mb-6">
-          <p className="mb-2">
-            <strong>Name:</strong> {user.firstName} {user.lastName}
+
+        <div className="bg-[var(--color-bg-subtle)] p-4 rounded-md mb-6">
+          <p className="mb-2 text-[var(--color-text)]">
+            <span className="font-medium">Name:</span> {user.firstName}{" "}
+            {user.lastName}
           </p>
-          <p className="mb-2">
-            <strong>Registration number:</strong>{" "}
-            {user.registrationNumber || "-"}
+          <p className="mb-2 text-[var(--color-text)]">
+            <span className="font-medium">Registration number:</span>{" "}
+            {user.registrationNumber || (
+              <span className="text-[var(--color-text-muted)]">-</span>
+            )}
           </p>
-          <p className="mb-2">
-            <strong>Alternative registration number:</strong>{" "}
-            {user.alternativeRegistrationNumber || "-"}
+          <p className="mb-2 text-[var(--color-text)]">
+            <span className="font-medium">Alternative registration number:</span>{" "}
+            {user.alternativeRegistrationNumber || (
+              <span className="text-[var(--color-text-muted)]">-</span>
+            )}
           </p>
-          <p>
-            <strong>Commute distance:</strong> {user.commuteDistance ?? "-"}
+          <p className="text-[var(--color-text)]">
+            <span className="font-medium">Commute distance:</span>{" "}
+            {user.commuteDistance ?? (
+              <span className="text-[var(--color-text-muted)]">-</span>
+            )}
           </p>
         </div>
-        <p className="text-red-600 font-semibold mb-6">
+
+        <Alert variant="error" className="mb-6">
           This action cannot be undone.
-        </p>
-        <div className="flex gap-4">
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+        </Alert>
+
+        <div className="flex gap-3">
+          <Button variant="danger" onClick={handleDelete} disabled={isDeleting}>
             {isDeleting ? "Deleting..." : "Delete User"}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={handleCancel}
             disabled={isDeleting}
-            className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Cancel
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

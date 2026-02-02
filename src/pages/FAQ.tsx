@@ -1,27 +1,28 @@
 import { Link } from "react-router-dom";
 import { nextThursday, addDays, format } from "date-fns";
 import FAQItem from "../components/FAQItem";
+import { PageHeader } from "../components/ui";
 
 function FAQ() {
   const thursday = nextThursday(new Date());
   const monday = addDays(thursday, 11);
 
-  return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">FAQ</h1>
+  const linkClass =
+    "text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors";
 
-      <div className="max-w-3xl space-y-6">
+  return (
+    <div>
+      <PageHeader title="FAQ" />
+
+      <div className="max-w-3xl space-y-5">
         <FAQItem question="How do I request a parking space?">
           <p>
             From the{" "}
-            <Link className="text-blue-600 hover:text-blue-800" to="/">
+            <Link className={linkClass} to="/">
               home page
             </Link>
             , click the{" "}
-            <Link
-              className="text-blue-600 hover:text-blue-800"
-              to="/edit-requests"
-            >
+            <Link className={linkClass} to="/edit-requests">
               "Edit requests"
             </Link>{" "}
             button. Select any dates you would like a space, and click "Save".
@@ -32,7 +33,7 @@ function FAQ() {
         </FAQItem>
 
         <FAQItem question="When will I know whether I have a space?">
-          <ul className="list-disc list-outside mt-2 ml-6">
+          <ul className="list-disc list-outside mt-2 ml-6 space-y-2">
             <li>
               Most spaces are released at 12am on the Thursday 11 days ahead of
               a working week. So for instance, for the week beginning{" "}
@@ -56,7 +57,7 @@ function FAQ() {
             When spaces are released, they are allocated to anybody who's
             requested them in priority order:
           </p>
-          <ul className="list-disc list-outside mt-2 ml-6">
+          <ul className="list-disc list-outside mt-2 ml-6 space-y-1">
             <li>People working certain shifts are given top priority;</li>
             <li>
               People who live further away are given priority over people who
@@ -67,7 +68,7 @@ function FAQ() {
               are given priority over people who have been interrupted less.
             </li>
           </ul>
-          <p className="mt-2">
+          <p className="mt-3">
             Once a space is allocated it is not removed unless the person
             cancels it themselves. If you are given a space it will not be given
             to anybody else, even if they would have had higher priority had you
@@ -79,27 +80,24 @@ function FAQ() {
           <p>
             If you've been allocated a space that you no longer need, please
             cancel your request via the{" "}
-            <Link
-              className="text-blue-600 hover:text-blue-800"
-              to="/edit-requests"
-            >
+            <Link className={linkClass} to="/edit-requests">
               edit requests
             </Link>{" "}
             page.
           </p>
-          <p className="mt-2">
+          <p className="mt-3">
             Similarly if you've been interrupted, but no longer need a space
             because you're not coming into the office for whatever reason,
             please cancel your request. This means that if a space becomes
             available it can be given straight to someone who can still use it.
           </p>
 
-          <p className="mt-2">
+          <p className="mt-3">
             If you've been interrupted, but have now made alternative
-            arrangments <strong>to come into the office</strong>, you can choose
+            arrangements <strong>to come into the office</strong>, you can choose
             to stay interrupted using the "Stay interrupted" button on the{" "}
             <Link
-              className="text-blue-600 hover:text-blue-800"
+              className={linkClass}
               to={`/daily-details/${format(new Date(), "yyyy-MM-dd")}`}
             >
               daily details
@@ -126,7 +124,7 @@ function FAQ() {
             something's not working as it says it should be, please create a bug
             report{" "}
             <a
-              className="text-blue-600 hover:text-blue-800"
+              className={linkClass}
               href={`${import.meta.env.VITE_REPOSITORY_URL}/issues`}
             >
               here
@@ -139,11 +137,11 @@ function FAQ() {
           <p>
             I suppose you don't, though creating this app would have been an
             awful lot of hassle to go to just for the sake of sneaking an
-            occasional extra parking space for myself 😛. If something's not
+            occasional extra parking space for myself. If something's not
             working as it should be it's much more likely that there's a bug
             (see above), but you <em>can</em> see all the source code{" "}
             <a
-              className="text-blue-600 hover:text-blue-800"
+              className={linkClass}
               href={`${import.meta.env.VITE_REPOSITORY_URL}/tree/main`}
             >
               here
@@ -159,11 +157,12 @@ function FAQ() {
             might claim. But here are some of the things in place here to
             increase the odds:
           </p>
-          <ul className="list-disc list-outside mt-2 ml-6">
+          <ul className="list-disc list-outside mt-2 ml-6 space-y-2">
             <li>
               As long as you're using a relatively recent browser, it's
               literally impossible to access the site unless you're using an{" "}
               <a
+                className={linkClass}
                 href={`https://hstspreload.org/?domain=${
                   import.meta.env.VITE_APP_DOMAIN
                 }`}
@@ -174,14 +173,12 @@ function FAQ() {
             </li>
             <li>
               The site is hosted using{" "}
-              <a
-                className="text-blue-600 hover:text-blue-800"
-                href="https://pages.cloudflare.com/"
-              >
+              <a className={linkClass} href="https://pages.cloudflare.com/">
                 Cloudflare pages
               </a>
               , which provides numerous security features including{" "}
               <a
+                className={linkClass}
                 href={`https://www.ssllabs.com/ssltest/analyze.html?d=${
                   import.meta.env.VITE_APP_DOMAIN
                 }&hideResults=on&latest`}
@@ -194,14 +191,14 @@ function FAQ() {
               Potential passwords are checked against the database of
               known-breached passwords at{" "}
               <a
-                className="text-blue-600 hover:text-blue-800"
+                className={linkClass}
                 href="https://haveibeenpwned.com/Passwords"
               >
                 Pwned Passwords
               </a>{" "}
               (using a{" "}
               <a
-                className="text-blue-600 hover:text-blue-800"
+                className={linkClass}
                 href="https://en.wikipedia.org/wiki/K-anonymity"
               >
                 k-anonymity
@@ -211,15 +208,12 @@ function FAQ() {
             </li>
             <li>
               The site is written using the{" "}
-              <a
-                className="text-blue-600 hover:text-blue-800"
-                href="https://reactjs.org/"
-              >
+              <a className={linkClass} href="https://reactjs.org/">
                 React library
               </a>
               , which helps protect against e.g.{" "}
               <a
-                className="text-blue-600 hover:text-blue-800"
+                className={linkClass}
                 href="https://owasp.org/www-community/attacks/xss/"
               >
                 cross-site scripting (XSS)
@@ -229,7 +223,7 @@ function FAQ() {
             <li>
               Many attack vectors are mitigated by{" "}
               <a
-                className="text-blue-600 hover:text-blue-800"
+                className={linkClass}
                 href={`https://securityheaders.com/?q=${
                   import.meta.env.VITE_APP_DOMAIN
                 }&hide=on&followRedirects=on`}
@@ -239,28 +233,19 @@ function FAQ() {
             </li>
             <li>
               The service runs on{" "}
-              <a
-                className="text-blue-600 hover:text-blue-800"
-                href="https://aws.amazon.com/dynamodb/"
-              >
+              <a className={linkClass} href="https://aws.amazon.com/dynamodb/">
                 various
               </a>{" "}
-              <a
-                className="text-blue-600 hover:text-blue-800"
-                href="https://aws.amazon.com/lambda/"
-              >
+              <a className={linkClass} href="https://aws.amazon.com/lambda/">
                 serverless
               </a>{" "}
               <a
-                className="text-blue-600 hover:text-blue-800"
+                className={linkClass}
                 href="https://aws.amazon.com/api-gateway/"
               >
                 AWS
               </a>{" "}
-              <a
-                className="text-blue-600 hover:text-blue-800"
-                href="https://aws.amazon.com/cognito/"
-              >
+              <a className={linkClass} href="https://aws.amazon.com/cognito/">
                 services
               </a>
               , meaning that corresponding hosting environments are hopefully
@@ -269,15 +254,15 @@ function FAQ() {
               course, but this at least gives us a fighting chance.
             </li>
           </ul>
-          <p className="mt-2">
+          <p className="mt-3">
             Hopefully all of the above (and some other things besides), coupled
             with the fact that it's not exactly a high-value target for nation
             state hacker types, means that the chance of your car registration
             number being sold on the dark web is pretty low... 🤞
           </p>
-          <p className="mt-2">
+          <p className="mt-3">
             You may also wish to read the{" "}
-            <Link className="text-blue-600 hover:text-blue-800" to="/privacy">
+            <Link className={linkClass} to="/privacy">
               Privacy Policy
             </Link>
             .

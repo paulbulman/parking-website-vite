@@ -1,23 +1,23 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
 
 function PublicLayout() {
   return (
-    <>
-      <nav className="bg-gray-800 text-white">
+    <div className="min-h-screen flex flex-col">
+      <nav className="bg-[var(--color-nav)] shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16">
-            <div className="flex space-x-8">
-              <div className="flex items-center px-3 py-2 text-sm font-medium">
-                Home
-              </div>
+          <div className="flex h-14">
+            <div className="flex items-center">
+              <span className="text-sm font-medium text-white">
+                Parking rota
+              </span>
             </div>
           </div>
         </div>
       </nav>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8">
         <Outlet />
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
 

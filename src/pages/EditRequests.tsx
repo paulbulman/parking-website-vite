@@ -3,13 +3,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRequests } from "../hooks/api/queries/requests";
 import { useEditRequests } from "../hooks/api/mutations/editRequests";
 import RequestsCalendar from "../components/RequestsCalendar";
+import { Button, PageHeader } from "../components/ui";
 
 function EditRequests() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { data, isLoading, error } = useRequests();
   const { editRequests, isSaving } = useEditRequests();
-  const [initialRequests, setInitialRequests] = useState<Record<string, boolean>>({});
+  const [initialRequests, setInitialRequests] = useState<
+    Record<string, boolean>
+  >({});
   const [requests, setRequests] = useState<Record<string, boolean>>({});
   const [prevData, setPrevData] = useState(data);
 
@@ -42,7 +45,9 @@ function EditRequests() {
   const handleSave = async () => {
     try {
       const requestsArray = Object.entries(requests)
-        .filter(([localDate, requested]) => initialRequests[localDate] !== requested)
+        .filter(
+          ([localDate, requested]) => initialRequests[localDate] !== requested
+        )
         .map(([localDate, requested]) => ({
           localDate,
           requested,
@@ -61,25 +66,27 @@ function EditRequests() {
 
   if (isLoading) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Edit Requests</h1>
-        <p>Loading...</p>
+      <div>
+        <PageHeader title="Edit Requests" />
+        <p className="text-[var(--color-text-secondary)]">Loading...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Edit Requests</h1>
-        <p className="text-red-600">Error loading data: {error.message}</p>
+      <div>
+        <PageHeader title="Edit Requests" />
+        <p className="text-[var(--color-danger)]">
+          Error loading data: {error.message}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Edit Requests</h1>
+    <div>
+      <PageHeader title="Edit Requests" />
 
       {data?.requests && (
         <RequestsCalendar
@@ -91,21 +98,13 @@ function EditRequests() {
         />
       )}
 
-      <div className="flex gap-4">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
+      <div className="flex gap-3">
+        <Button onClick={handleSave} disabled={isSaving}>
           {isSaving ? "Saving..." : "Save"}
-        </button>
-        <button
-          onClick={handleCancel}
-          disabled={isSaving}
-          className="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:cursor-not-allowed"
-        >
+        </Button>
+        <Button variant="secondary" onClick={handleCancel} disabled={isSaving}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );

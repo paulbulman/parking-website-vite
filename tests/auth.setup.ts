@@ -14,7 +14,7 @@ setup('authenticate', async ({ page }) => {
   await page.goto('/login');
   await page.getByLabel('Username').fill(username);
   await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByRole('button', { name: 'Log in' }).click();
 
   await expect(page).toHaveURL('/');
 

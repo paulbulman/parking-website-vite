@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useProfile } from "../hooks/api/queries/profile";
 import { useEditProfile } from "../hooks/api/mutations/editProfile";
 import { useUserClaims } from "../hooks/useUserClaims";
+import { Button, Input, Card, PageHeader, Alert } from "../components/ui";
 
 function Profile() {
   const { data, isLoading, error } = useProfile();
@@ -52,56 +53,43 @@ function Profile() {
 
   if (isLoading) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Profile</h1>
-        <p>Loading profile...</p>
+      <div>
+        <PageHeader title="Profile" />
+        <p className="text-[var(--color-text-secondary)]">Loading profile...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Profile</h1>
-        <p className="text-red-600">Error loading profile: {error.message}</p>
+      <div>
+        <PageHeader title="Profile" />
+        <p className="text-[var(--color-danger)]">
+          Error loading profile: {error.message}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-4">Profile</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white border border-gray-300 rounded p-6 max-w-2xl"
-      >
-        <div className="mb-4">
-          <label
-            htmlFor="registrationNumber"
-            className="block font-semibold mb-2"
-          >
-            Registration number
-          </label>
-          <input
+    <div>
+      <PageHeader title="Profile" />
+
+      <Card className="max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
             id="registrationNumber"
+            label="Registration number"
             type="text"
             value={formData.registrationNumber}
             onChange={(e) =>
               setFormData({ ...formData, registrationNumber: e.target.value })
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        </div>
 
-        <div className="mb-4">
-          <label
-            htmlFor="alternativeRegistrationNumber"
-            className="block font-semibold mb-2"
-          >
-            Alternative registration number
-          </label>
-          <input
+          <Input
             id="alternativeRegistrationNumber"
+            label="Alternative registration number"
             type="text"
             value={formData.alternativeRegistrationNumber}
             onChange={(e) =>
@@ -110,71 +98,68 @@ function Profile() {
                 alternativeRegistrationNumber: e.target.value,
               })
             }
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        </div>
 
-        <div className="mb-4">
-          <label className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              checked={formData.requestReminderEnabled}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  requestReminderEnabled: e.target.checked,
-                })
-              }
-              className="mt-1"
-            />
-            <div>
-              <div className="font-semibold">Requests reminder</div>
-              <div className="text-sm text-gray-600">
-                Send me a reminder if I have no upcoming requests
-              </div>
-            </div>
-          </label>
-        </div>
-
-        {isTeamLeader() && (
-          <div className="mb-6">
-            <label className="flex items-start gap-3">
+          <div className="space-y-4 pt-2">
+            <label className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                checked={formData.reservationReminderEnabled}
+                checked={formData.requestReminderEnabled}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    reservationReminderEnabled: e.target.checked,
+                    requestReminderEnabled: e.target.checked,
                   })
                 }
-                className="mt-1"
+                className="mt-1 w-4 h-4"
               />
               <div>
-                <div className="font-semibold">Reservations reminder</div>
-                <div className="text-sm text-gray-600">
-                  Send me a reminder if there are no day-ahead reservations
+                <div className="font-medium text-[var(--color-text)]">
+                  Requests reminder
+                </div>
+                <div className="text-sm text-[var(--color-text-secondary)]">
+                  Send me a reminder if I have no upcoming requests
                 </div>
               </div>
             </label>
-          </div>
-        )}
 
-        <div className="flex gap-4 items-center">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isSaving ? "Saving..." : "Save"}
-          </button>
-          {saveSuccess && (
-            <span className="text-green-600 font-semibold">
-              Profile saved successfully!
-            </span>
-          )}
-        </div>
-      </form>
+            {isTeamLeader() && (
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.reservationReminderEnabled}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      reservationReminderEnabled: e.target.checked,
+                    })
+                  }
+                  className="mt-1 w-4 h-4"
+                />
+                <div>
+                  <div className="font-medium text-[var(--color-text)]">
+                    Reservations reminder
+                  </div>
+                  <div className="text-sm text-[var(--color-text-secondary)]">
+                    Send me a reminder if there are no day-ahead reservations
+                  </div>
+                </div>
+              </label>
+            )}
+          </div>
+
+          <div className="flex gap-4 items-center pt-4">
+            <Button type="submit" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save"}
+            </Button>
+            {saveSuccess && (
+              <Alert variant="success" className="py-2">
+                Profile saved successfully!
+              </Alert>
+            )}
+          </div>
+        </form>
+      </Card>
     </div>
   );
 }

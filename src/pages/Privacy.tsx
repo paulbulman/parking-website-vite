@@ -1,24 +1,28 @@
 import FAQItem from "../components/FAQItem";
+import { PageHeader } from "../components/ui";
 
 function Privacy() {
-  return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
+  const linkClass =
+    "text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors";
 
-      <div className="max-w-3xl space-y-6 text-gray-700">
+  return (
+    <div>
+      <PageHeader title="Privacy Policy" />
+
+      <div className="max-w-3xl space-y-5">
         <FAQItem question="Introduction">
           <p>
             This app requires a limited amount of personal information to
             function correctly. As per the{" "}
             <a
-              className="text-blue-600 hover:text-blue-800"
+              className={linkClass}
               href="http://www.legislation.gov.uk/ukpga/2018/12/contents/enacted"
             >
               Data Protection Act 2018
             </a>
             , steps have been taken to ensure this information is:
           </p>
-          <ul className="list-disc list-outside mt-2 ml-6">
+          <ul className="list-disc list-outside mt-2 ml-6 space-y-1">
             <li>used fairly, lawfully and transparently;</li>
             <li>used for specified, explicit purposes;</li>
             <li>
@@ -33,8 +37,8 @@ function Privacy() {
               loss, destruction or damage.
             </li>
           </ul>
-          <p className="mt-2">You also have the right to:</p>
-          <ul className="list-disc list-outside mt-2 ml-6">
+          <p className="mt-3">You also have the right to:</p>
+          <ul className="list-disc list-outside mt-2 ml-6 space-y-1">
             <li>be informed about how your data is being used;</li>
             <li>access personal data;</li>
             <li>have incorrect data updated;</li>
@@ -55,7 +59,7 @@ function Privacy() {
             All personal information collected is required for the app to
             function correctly:
           </p>
-          <ul className="list-disc list-outside mt-2 ml-6">
+          <ul className="list-disc list-outside mt-2 ml-6 space-y-1">
             <li>
               your email address, to allow you to reset your account password,
               and to receive notifications;
@@ -69,7 +73,7 @@ function Privacy() {
               system to allocate spaces accordingly.
             </li>
           </ul>
-          <p className="mt-2">
+          <p className="mt-3">
             Note that, in the case of where you live, the only information
             stored is an approximate numerical distance. Your physical address
             is never stored, even partially.
@@ -84,23 +88,23 @@ function Privacy() {
             such accounts have strong, unique passwords and are protected by
             multi-factor authentication.
           </p>
-          <p className="mt-2">
+          <p className="mt-3">
             Some personal information (name, car registration number) is
             available to other users of the system. In order to protect this
             data, users are not allowed to sign up to the system themselves; all
             new accounts must be created by an administrative user.
           </p>
-          <p className="mt-2">
+          <p className="mt-3">
             Registration numbers are not visible to browse; they are only
             displayed when searching for a specific registration number. This is
             the legitimate use case of another user finding out who is blocking
             them in.
           </p>
-          <p className="mt-2">
+          <p className="mt-3">
             No personal information is ever shared with any third-party. No
             adverts or tracking cookies are used.
           </p>
-          <p className="mt-2">
+          <p className="mt-3">
             Further technical protections are in place to attempt to make the
             overall system as secure as is practicably possible. Details of some
             of these are on the FAQ page.

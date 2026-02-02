@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router";
 import { confirmResetPassword, signIn } from "aws-amplify/auth";
 import { useAuthContext } from "../contexts/useAuthContext";
 import { pwnedPassword } from "hibp";
+import { Button, Input, Card, Alert } from "../components/ui";
 
 function ResetPassword() {
   const [code, setCode] = useState("");
@@ -17,14 +18,12 @@ function ResetPassword() {
 
   const username = (location.state as { username?: string })?.username;
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/", { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
-  // Redirect to forgot password if no username in state
   if (!username) {
     navigate("/forgot-password", { replace: true });
     return null;
@@ -50,18 +49,15 @@ function ResetPassword() {
     setIsLoading(true);
 
     try {
-      // Confirm the password reset with the code
       await confirmResetPassword({
         username,
         confirmationCode: code,
         newPassword,
       });
 
-      // Sign in with the new password
       await signIn({ username, password: newPassword });
       await refreshAuthStatus();
 
-      // Redirect to home
       navigate("/", { replace: true });
     } catch (err) {
       setError(
@@ -73,83 +69,58 @@ function ResetPassword() {
   };
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Reset Password</h1>
+    <div className="min-h-[60vh] flex items-start justify-center pt-12">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-[var(--color-text)]">
+            Reset Password
+          </h1>
+          <p className="mt-2 text-[var(--color-text-secondary)]">
+            Enter the code sent to your email and your new password.
+          </p>
+        </div>
 
-      <div className="max-w-md bg-white rounded-lg shadow-md p-8">
-        <p className="mb-6 text-gray-700">
-          Enter the code sent to your email and your new password.
-        </p>
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label
-              htmlFor="code"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Reset Code
-            </label>
-            <input
+        <Card elevated>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
               id="code"
+              label="Reset Code"
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
             />
-          </div>
 
-          <div className="mb-4">
-            <label
-              htmlFor="newPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              New Password
-            </label>
-            <input
+            <Input
               id="newPassword"
+              label="New Password"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
+              autoComplete="new-password"
             />
-          </div>
 
-          <div className="mb-6">
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Confirm Password
-            </label>
-            <input
+            <Input
               id="confirmPassword"
+              label="Confirm Password"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isLoading}
+              autoComplete="new-password"
             />
-          </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
+            {error && <Alert variant="error">{error}</Alert>}
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
-            {isLoading ? "Resetting password..." : "Reset Password"}
-          </button>
-        </form>
+            <Button type="submit" disabled={isLoading} className="w-full">
+              {isLoading ? "Resetting password..." : "Reset Password"}
+            </Button>
+          </form>
+        </Card>
       </div>
     </div>
   );

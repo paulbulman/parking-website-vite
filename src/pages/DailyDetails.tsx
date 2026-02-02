@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams } from "react-router";
 import { useDailyDetails } from "../hooks/api/queries/dailyDetails";
 import { useStayInterrupted } from "../hooks/api/mutations/stayInterrupted";
+import { Button, Input, PageHeader } from "../components/ui";
 
 function DailyDetails() {
   const { date } = useParams<{ date: string }>();
@@ -44,27 +45,29 @@ function DailyDetails() {
 
   if (isLoading) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Daily Details</h1>
-        <p>Loading details...</p>
+      <div>
+        <PageHeader title="Daily Details" />
+        <p className="text-[var(--color-text-secondary)]">Loading details...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Daily Details</h1>
-        <p className="text-red-600">Error loading details: {error.message}</p>
+      <div>
+        <PageHeader title="Daily Details" />
+        <p className="text-[var(--color-danger)]">
+          Error loading details: {error.message}
+        </p>
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="py-8">
-        <h1 className="text-3xl font-bold mb-4">Daily Details</h1>
-        <p>No data available.</p>
+      <div>
+        <PageHeader title="Daily Details" />
+        <p className="text-[var(--color-text-secondary)]">No data available.</p>
       </div>
     );
   }
@@ -86,7 +89,6 @@ function DailyDetails() {
     pendingUsers.length > 0;
 
   const handleDateChange = (newDate: string) => {
-    // Only allow selection of available dates
     if (availableDateStrings.includes(newDate)) {
       setSelectedDate(newDate);
     }
@@ -96,26 +98,24 @@ function DailyDetails() {
   const maxDate = availableDates[availableDates.length - 1]?.localDate;
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Daily Details</h1>
+    <div>
+      <PageHeader title="Daily Details" />
 
       <div className="mb-6">
-        <label htmlFor="date-picker" className="block text-sm font-medium mb-2">
-          Select Date
-        </label>
-        <input
+        <Input
           id="date-picker"
+          label="Select Date"
           type="date"
           value={selectedDate}
           onChange={(e) => handleDateChange(e.target.value)}
           min={minDate}
           max={maxDate}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="max-w-xs"
         />
       </div>
 
       {!hasAnyUsers && (
-        <p className="text-gray-600">
+        <p className="text-[var(--color-text-secondary)]">
           There are no requests for the selected date.
         </p>
       )}
@@ -124,15 +124,15 @@ function DailyDetails() {
         <div className="space-y-6">
           {allocatedUsers.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold mb-3">
+              <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
                 Allocated ({allocatedUsers.length})
               </h2>
               <ul className="space-y-2">
                 {allocatedUsers.map((user, index) => (
                   <li
                     key={index}
-                    className={`px-4 py-2 bg-green-100 text-green-800 border border-gray-300 rounded ${
-                      user.isHighlighted ? "font-bold" : ""
+                    className={`px-4 py-2.5 status-allocated rounded-md ${
+                      user.isHighlighted ? "font-semibold" : ""
                     }`}
                   >
                     {user.name}
@@ -144,15 +144,15 @@ function DailyDetails() {
 
           {interruptedUsers.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold mb-3">
+              <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
                 Interrupted ({interruptedUsers.length})
               </h2>
               <ul className="space-y-2">
                 {interruptedUsers.map((user, index) => (
                   <li
                     key={index}
-                    className={`px-4 py-2 bg-red-100 text-red-800 border border-gray-300 rounded ${
-                      user.isHighlighted ? "font-bold" : ""
+                    className={`px-4 py-2.5 status-interrupted rounded-md ${
+                      user.isHighlighted ? "font-semibold" : ""
                     }`}
                   >
                     {user.name}
@@ -164,15 +164,15 @@ function DailyDetails() {
 
           {pendingUsers.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold mb-3">
+              <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
                 Pending ({pendingUsers.length})
               </h2>
               <ul className="space-y-2">
                 {pendingUsers.map((user, index) => (
                   <li
                     key={index}
-                    className={`px-4 py-2 bg-orange-100 text-orange-800 border border-gray-300 rounded ${
-                      user.isHighlighted ? "font-bold" : ""
+                    className={`px-4 py-2.5 status-pending rounded-md ${
+                      user.isHighlighted ? "font-semibold" : ""
                     }`}
                   >
                     {user.name}
@@ -185,18 +185,14 @@ function DailyDetails() {
       )}
 
       {stayInterruptedStatus?.isAllowed && (
-        <div className="mt-6">
-          <button
-            onClick={handleStayInterruptedToggle}
-            disabled={isSaving}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-          >
+        <div className="mt-8">
+          <Button onClick={handleStayInterruptedToggle} disabled={isSaving}>
             {isSaving
               ? "Saving..."
               : stayInterruptedStatus.isSet
                 ? "Re-request space"
                 : "Stay interrupted"}
-          </button>
+          </Button>
         </div>
       )}
     </div>

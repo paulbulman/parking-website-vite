@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from "react";
 import { useRegistrationNumbers } from "../hooks/api/queries/registrationNumbers";
+import { Button, Input, PageHeader } from "../components/ui";
 
 function RegistrationNumbers() {
   const [inputValue, setInputValue] = useState<string>("");
   const [submittedSearch, setSubmittedSearch] = useState<string>("");
 
-  const { data, isLoading, error } = useRegistrationNumbers({ searchString: submittedSearch });
+  const { data, isLoading, error } = useRegistrationNumbers({
+    searchString: submittedSearch,
+  });
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -13,72 +16,80 @@ function RegistrationNumbers() {
   };
 
   return (
-    <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Registration Numbers</h1>
+    <div>
+      <PageHeader title="Registration Numbers" />
 
       <form onSubmit={handleSubmit} className="mb-6">
-        <label htmlFor="search" className="block text-sm font-medium mb-2">
-          Search Registration Number
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="search"
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Enter registration number..."
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[300px]"
-          />
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-            disabled={!inputValue.trim()}
-          >
+        <div className="flex gap-3 items-end max-w-lg">
+          <div className="flex-grow">
+            <Input
+              id="search"
+              label="Search Registration Number"
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Enter registration number..."
+            />
+          </div>
+          <Button type="submit" disabled={!inputValue.trim()}>
             Search
-          </button>
+          </Button>
         </div>
       </form>
 
       {submittedSearch && isLoading && (
-        <p>Searching...</p>
+        <p className="text-[var(--color-text-secondary)]">Searching...</p>
       )}
 
       {submittedSearch && error && (
-        <p className="text-red-600">Error searching: {error.message}</p>
+        <p className="text-[var(--color-danger)]">
+          Error searching: {error.message}
+        </p>
       )}
 
-      {submittedSearch && data?.registrationNumbers && data.registrationNumbers.length === 0 && (
-        <p className="text-gray-600">No registration numbers found.</p>
-      )}
+      {submittedSearch &&
+        data?.registrationNumbers &&
+        data.registrationNumbers.length === 0 && (
+          <p className="text-[var(--color-text-secondary)]">
+            No registration numbers found.
+          </p>
+        )}
 
-      {submittedSearch && data?.registrationNumbers && data.registrationNumbers.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
-                  Registration Number
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
-                  Name
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.registrationNumbers.map((item, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2">
-                    {item.registrationNumber}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {item.name}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {submittedSearch &&
+        data?.registrationNumbers &&
+        data.registrationNumbers.length > 0 && (
+          <div className="card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border)]">
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
+                      Registration Number
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
+                      Name
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.registrationNumbers.map((item, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-[var(--color-border)] last:border-b-0 hover:bg-[var(--color-bg-subtle)] transition-colors"
+                    >
+                      <td className="px-4 py-3 text-[var(--color-text)]">
+                        {item.registrationNumber}
+                      </td>
+                      <td className="px-4 py-3 text-[var(--color-text)]">
+                        {item.name}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
     </div>
   );
 }

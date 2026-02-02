@@ -7,9 +7,13 @@ interface FAQItemProps {
 
 function FAQItem({ question, children }: FAQItemProps) {
   return (
-    <div className="bg-white border border-gray-300 rounded-lg p-6">
-      <h2 className="text-xl font-bold mb-3">{question}</h2>
-      <div className="text-gray-700">{children}</div>
+    <div className="card p-6">
+      <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
+        {question}
+      </h2>
+      <div className="text-[var(--color-text-secondary)] leading-relaxed">
+        {children}
+      </div>
     </div>
   );
 }
