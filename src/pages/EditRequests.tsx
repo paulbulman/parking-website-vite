@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useRequests } from "../hooks/api/queries/requests";
 import { useEditRequests } from "../hooks/api/mutations/editRequests";
@@ -11,11 +11,13 @@ function EditRequests() {
   const { editRequests, isSaving } = useEditRequests();
   const [initialRequests, setInitialRequests] = useState<Record<string, boolean>>({});
   const [requests, setRequests] = useState<Record<string, boolean>>({});
+  const [prevData, setPrevData] = useState(data);
 
   const initialWeekIndex = parseInt(searchParams.get("week") ?? "0", 10) || 0;
   const [currentWeekIndex, setCurrentWeekIndex] = useState(initialWeekIndex);
 
-  useEffect(() => {
+  if (data !== prevData) {
+    setPrevData(data);
     if (data?.requests.weeks) {
       const initialState: Record<string, boolean> = {};
       data.requests.weeks.forEach((week) => {
@@ -28,7 +30,7 @@ function EditRequests() {
       setInitialRequests(initialState);
       setRequests(initialState);
     }
-  }, [data]);
+  }
 
   const handleCheckboxChange = (localDate: string) => {
     setRequests((prev) => ({

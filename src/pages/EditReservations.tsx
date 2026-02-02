@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useReservations } from "../hooks/api/queries/reservations";
 import { useEditReservations } from "../hooks/api/mutations/editReservations";
 
@@ -85,9 +85,10 @@ function EditReservations() {
 
   // State for mobile week navigation
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  const [prevData, setPrevData] = useState(data);
 
-  // Initialize selections when data loads
-  useEffect(() => {
+  if (data !== prevData) {
+    setPrevData(data);
     if (data?.reservations) {
       const initial: Record<string, string[]> = {};
 
@@ -102,7 +103,7 @@ function EditReservations() {
       setInitialSelections(initial);
       setSelections(initial);
     }
-  }, [data]);
+  }
 
   const handleSelectionChange = (
     localDate: string,

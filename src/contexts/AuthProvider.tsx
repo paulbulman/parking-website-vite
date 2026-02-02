@@ -1,27 +1,11 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import {
   signIn,
   signOut,
   getCurrentUser,
   fetchAuthSession,
-  type SignInOutput,
 } from "aws-amplify/auth";
-
-interface AuthContextType {
-  isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<SignInOutput>;
-  logout: () => void;
-  getToken: () => Promise<string | undefined>;
-  refreshAuthStatus: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -95,10 +79,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-}

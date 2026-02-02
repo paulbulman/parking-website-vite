@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import { useAuthContext } from '../contexts/AuthContext';
+import { useAuthContext } from '../contexts/useAuthContext';
 
 interface DecodedToken {
   'cognito:groups'?: string[];

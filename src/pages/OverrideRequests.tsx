@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUsersList } from "../hooks/api/queries/usersList";
 import { useUserRequests } from "../hooks/api/queries/userRequests";
@@ -10,6 +10,7 @@ function OverrideRequests() {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [initialRequests, setInitialRequests] = useState<Record<string, boolean>>({});
   const [requests, setRequests] = useState<Record<string, boolean>>({});
+  const [prevUserRequestsData, setPrevUserRequestsData] = useState<typeof userRequestsData>(undefined);
 
   const { data: usersListData, isLoading: isLoadingUsers, error: usersError } = useUsersList();
   const {
@@ -19,8 +20,8 @@ function OverrideRequests() {
   } = useUserRequests({ userId: selectedUserId });
   const { editUserRequests, isSaving } = useEditUserRequests({ userId: selectedUserId });
 
-  // Initialize requests when user data loads or user changes
-  useEffect(() => {
+  if (userRequestsData !== prevUserRequestsData) {
+    setPrevUserRequestsData(userRequestsData);
     if (userRequestsData?.requests.weeks) {
       const initialState: Record<string, boolean> = {};
       userRequestsData.requests.weeks.forEach((week) => {
@@ -33,11 +34,10 @@ function OverrideRequests() {
       setInitialRequests(initialState);
       setRequests(initialState);
     } else {
-      // Reset state when no data (e.g., user deselected)
       setInitialRequests({});
       setRequests({});
     }
-  }, [userRequestsData]);
+  }
 
   const handleCheckboxChange = (localDate: string) => {
     setRequests((prev) => ({

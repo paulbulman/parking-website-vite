@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useProfile } from "../hooks/api/queries/profile";
 import { useEditProfile } from "../hooks/api/mutations/editProfile";
 import { useUserClaims } from "../hooks/useUserClaims";
@@ -16,8 +16,10 @@ function Profile() {
   });
 
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [prevData, setPrevData] = useState(data);
 
-  useEffect(() => {
+  if (data !== prevData) {
+    setPrevData(data);
     if (data?.profile) {
       setFormData({
         registrationNumber: data.profile.registrationNumber ?? "",
@@ -27,7 +29,7 @@ function Profile() {
         reservationReminderEnabled: data.profile.reservationReminderEnabled,
       });
     }
-  }, [data]);
+  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

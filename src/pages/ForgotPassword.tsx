@@ -2,7 +2,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import { resetPassword } from "aws-amplify/auth";
 import { Link } from "react-router";
-import { useAuthContext } from "../contexts/AuthContext";
+import { useAuthContext } from "../contexts/useAuthContext";
 
 function ForgotPassword() {
   const [username, setUsername] = useState("");

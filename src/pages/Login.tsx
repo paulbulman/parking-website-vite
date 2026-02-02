@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate, useLocation, Link } from "react-router";
-import { useAuthContext } from "../contexts/AuthContext";
+import { useAuthContext } from "../contexts/useAuthContext";
 
 function Login() {
   const [username, setUsername] = useState("");

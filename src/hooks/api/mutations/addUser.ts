@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthContext } from "../../../contexts/AuthContext";
+import { useAuthContext } from "../../../contexts/useAuthContext";
 import { post } from "../helpers";
 import type { operations } from "../types";
 

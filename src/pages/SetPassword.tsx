@@ -1,7 +1,7 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { confirmSignIn } from "aws-amplify/auth";
-import { useAuthContext } from "../contexts/AuthContext";
+import { useAuthContext } from "../contexts/useAuthContext";
 import { pwnedPassword } from "hibp";
 
 function SetPassword() {

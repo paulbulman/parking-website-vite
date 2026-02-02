@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router";
 import { useDailyDetails } from "../hooks/api/queries/dailyDetails";
 import { useStayInterrupted } from "../hooks/api/mutations/stayInterrupted";
@@ -9,18 +9,25 @@ function DailyDetails() {
   const { stayInterrupted, isSaving } = useStayInterrupted();
 
   const [selectedDate, setSelectedDate] = useState<string>(date || "");
+  const [prevDate, setPrevDate] = useState(date);
+  const [prevData, setPrevData] = useState(data);
 
-  useEffect(() => {
+  if (date !== prevDate) {
+    setPrevDate(date);
     if (date) {
       setSelectedDate(date);
-    } else if (data?.details && data.details.length > 0) {
-      // If no date in URL, default to first available date
+    }
+  }
+
+  if (data !== prevData) {
+    setPrevData(data);
+    if (!date && data?.details && data.details.length > 0) {
       const firstAvailableDate = data.details.find((d) => !d.hidden);
       if (firstAvailableDate) {
         setSelectedDate(firstAvailableDate.localDate);
       }
     }
-  }, [date, data]);
+  }
 
   const handleStayInterruptedToggle = async () => {
     if (!selectedDate || !selectedDayData?.stayInterruptedStatus) return;
