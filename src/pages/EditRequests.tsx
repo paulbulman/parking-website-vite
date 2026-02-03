@@ -10,48 +10,37 @@ function EditRequests() {
   const [searchParams] = useSearchParams();
   const { data, isLoading, error } = useRequests();
   const { editRequests, isSaving } = useEditRequests();
-  const [initialRequests, setInitialRequests] = useState<
+  const [changedRequests, setChangedRequests] = useState<
     Record<string, boolean>
   >({});
-  const [requests, setRequests] = useState<Record<string, boolean>>({});
-  const [prevData, setPrevData] = useState(data);
 
   const initialWeekIndex = parseInt(searchParams.get("week") ?? "0", 10) || 0;
   const [currentWeekIndex, setCurrentWeekIndex] = useState(initialWeekIndex);
 
-  if (data !== prevData) {
-    setPrevData(data);
-    if (data?.requests.weeks) {
-      const initialState: Record<string, boolean> = {};
-      data.requests.weeks.forEach((week) => {
-        week.days.forEach((day) => {
-          if (!day.hidden && day.data) {
-            initialState[day.localDate] = day.data.requested;
-          }
-        });
-      });
-      setInitialRequests(initialState);
-      setRequests(initialState);
-    }
-  }
+  const initialRequests: Record<string, boolean> = Object.fromEntries(
+    (data?.requests.weeks ?? [])
+      .flatMap((week) => week.days)
+      .filter((day) => !day.hidden && day.data)
+      .map((day) => [day.localDate, day.data!.requested])
+  );
+
+  const requests = { ...initialRequests, ...changedRequests };
 
   const handleCheckboxChange = (localDate: string) => {
-    setRequests((prev) => ({
+    setChangedRequests((prev) => ({
       ...prev,
-      [localDate]: !prev[localDate],
+      [localDate]: !requests[localDate],
     }));
   };
 
   const handleSave = async () => {
     try {
-      const requestsArray = Object.entries(requests)
-        .filter(
-          ([localDate, requested]) => initialRequests[localDate] !== requested
-        )
-        .map(([localDate, requested]) => ({
+      const requestsArray = Object.entries(changedRequests).map(
+        ([localDate, requested]) => ({
           localDate,
           requested,
-        }));
+        })
+      );
 
       await editRequests({ requests: requestsArray });
       navigate(`/?week=${currentWeekIndex}`);

@@ -73,71 +73,54 @@ function EditReservations() {
   const { data, isLoading, error } = useReservations();
   const { editReservations, isSaving } = useEditReservations();
 
-  const [initialSelections, setInitialSelections] = useState<
+  const [changedSelections, setChangedSelections] = useState<
     Record<string, string[]>
   >({});
-  const [selections, setSelections] = useState<Record<string, string[]>>({});
   const [saveSuccess, setSaveSuccess] = useState(false);
-
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
-  const [prevData, setPrevData] = useState(data);
 
-  if (data !== prevData) {
-    setPrevData(data);
-    if (data?.reservations) {
-      const initial: Record<string, string[]> = {};
+  const initialSelections: Record<string, string[]> = Object.fromEntries(
+    (data?.reservations.weeks ?? [])
+      .flatMap((week) => week.days)
+      .filter((day) => !day.hidden && day.data)
+      .map((day) => [day.localDate, day.data!.userIds])
+  );
 
-      data.reservations.weeks.forEach((week) => {
-        week.days.forEach((day) => {
-          if (!day.hidden && day.data) {
-            initial[day.localDate] = [...day.data.userIds];
-          }
-        });
-      });
-
-      setInitialSelections(initial);
-      setSelections(initial);
-    }
-  }
+  const selections: Record<string, string[]> = Object.fromEntries(
+    Object.keys(initialSelections).map((localDate) => [
+      localDate,
+      changedSelections[localDate] ?? initialSelections[localDate],
+    ])
+  );
 
   const handleSelectionChange = (
     localDate: string,
     index: number,
     userId: string
   ) => {
-    setSelections((prev) => {
-      const currentSelections = prev[localDate] || [];
-      const newSelections = [...currentSelections];
-      newSelections[index] = userId;
-      return {
-        ...prev,
-        [localDate]: newSelections,
-      };
-    });
-  };
-
-  const arraysEqual = (a: string[], b: string[]): boolean => {
-    if (a.length !== b.length) return false;
-    return a.every((val, index) => val === b[index]);
+    const currentSelections = selections[localDate] || [];
+    const newSelections = [...currentSelections];
+    newSelections[index] = userId;
+    setChangedSelections((prev) => ({
+      ...prev,
+      [localDate]: newSelections,
+    }));
   };
 
   const handleSave = async () => {
     setSaveSuccess(false);
 
     try {
-      const reservationsArray = Object.entries(selections)
-        .filter(([localDate, userIds]) => {
-          const initial = initialSelections[localDate] || [];
-          return !arraysEqual(initial, userIds);
-        })
-        .map(([localDate, userIds]) => ({
+      const reservationsArray = Object.entries(changedSelections).map(
+        ([localDate, userIds]) => ({
           localDate,
           userIds: userIds.filter((id) => id !== ""),
-        }));
+        })
+      );
 
       await editReservations({ reservations: reservationsArray });
 
-      setInitialSelections(selections);
+      setChangedSelections({});
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
