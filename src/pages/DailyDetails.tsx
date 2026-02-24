@@ -3,45 +3,13 @@ import { useParams } from "react-router";
 import { useDailyDetails } from "../hooks/api/queries/dailyDetails";
 import { useStayInterrupted } from "../hooks/api/mutations/stayInterrupted";
 import { Button, Input, PageHeader } from "../components/ui";
+import type { components } from "../hooks/api/types";
+
+type DailyDetailsResponse = components["schemas"]["DailyDetailsResponse"];
 
 function DailyDetails() {
   const { date } = useParams<{ date: string }>();
   const { data, isLoading, error } = useDailyDetails();
-  const { stayInterrupted, isSaving } = useStayInterrupted();
-
-  const [selectedDate, setSelectedDate] = useState<string>(date || "");
-  const [prevDate, setPrevDate] = useState(date);
-  const [prevData, setPrevData] = useState(data);
-
-  if (date !== prevDate) {
-    setPrevDate(date);
-    if (date) {
-      setSelectedDate(date);
-    }
-  }
-
-  if (data !== prevData) {
-    setPrevData(data);
-    if (!date && data?.details && data.details.length > 0) {
-      const firstAvailableDate = data.details.find((d) => !d.hidden);
-      if (firstAvailableDate) {
-        setSelectedDate(firstAvailableDate.localDate);
-      }
-    }
-  }
-
-  const handleStayInterruptedToggle = async () => {
-    if (!selectedDate || !selectedDayData?.stayInterruptedStatus) return;
-
-    try {
-      await stayInterrupted({
-        localDate: selectedDate,
-        stayInterrupted: !selectedDayData.stayInterruptedStatus.isSet,
-      });
-    } catch (error) {
-      console.error("Error toggling stay interrupted:", error);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -52,28 +20,37 @@ function DailyDetails() {
     );
   }
 
-  if (error) {
+  if (error || !data) {
     return (
       <div>
         <PageHeader title="Daily Details" />
         <p className="text-[var(--color-danger)]">
-          Error loading details: {error.message}
+          Error loading details: {error?.message ?? "No data"}
         </p>
       </div>
     );
   }
 
-  if (!data) {
-    return (
-      <div>
-        <PageHeader title="Daily Details" />
-        <p className="text-[var(--color-text-secondary)]">No data available.</p>
-      </div>
-    );
-  }
+  return <DailyDetailsContent data={data} urlDate={date} />;
+}
+
+function DailyDetailsContent({
+  data,
+  urlDate,
+}: {
+  data: DailyDetailsResponse;
+  urlDate?: string;
+}) {
+  const { stayInterrupted, isSaving } = useStayInterrupted();
 
   const availableDates = data.details.filter((d) => !d.hidden);
   const availableDateStrings = availableDates.map((d) => d.localDate);
+
+  const initialDate =
+    urlDate ?? availableDates[0]?.localDate ?? "";
+
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+
   const selectedDayData = data.details.find(
     (d) => d.localDate === selectedDate
   )?.data;
@@ -91,6 +68,19 @@ function DailyDetails() {
   const handleDateChange = (newDate: string) => {
     if (availableDateStrings.includes(newDate)) {
       setSelectedDate(newDate);
+    }
+  };
+
+  const handleStayInterruptedToggle = async () => {
+    if (!selectedDate || !selectedDayData?.stayInterruptedStatus) return;
+
+    try {
+      await stayInterrupted({
+        localDate: selectedDate,
+        stayInterrupted: !selectedDayData.stayInterruptedStatus.isSet,
+      });
+    } catch (error) {
+      console.error("Error toggling stay interrupted:", error);
     }
   };
 

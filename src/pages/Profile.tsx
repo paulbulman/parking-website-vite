@@ -3,34 +3,49 @@ import { useProfile } from "../hooks/api/queries/profile";
 import { useEditProfile } from "../hooks/api/mutations/editProfile";
 import { useUserClaims } from "../hooks/useUserClaims";
 import { Button, Input, Card, PageHeader, Alert } from "../components/ui";
+import type { components } from "../hooks/api/types";
+
+type ProfileData = components["schemas"]["ProfileData"];
 
 function Profile() {
   const { data, isLoading, error } = useProfile();
+
+  if (isLoading) {
+    return (
+      <div>
+        <PageHeader title="Profile" />
+        <p className="text-[var(--color-text-secondary)]">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div>
+        <PageHeader title="Profile" />
+        <p className="text-[var(--color-danger)]">
+          Error loading profile: {error?.message ?? "No data"}
+        </p>
+      </div>
+    );
+  }
+
+  return <ProfileForm profile={data.profile} />;
+}
+
+function ProfileForm({ profile }: { profile: ProfileData }) {
   const { editProfile, isSaving } = useEditProfile();
   const { isTeamLeader } = useUserClaims();
 
   const [formData, setFormData] = useState({
-    registrationNumber: "",
-    alternativeRegistrationNumber: "",
-    requestReminderEnabled: false,
-    reservationReminderEnabled: false,
+    registrationNumber: profile.registrationNumber ?? "",
+    alternativeRegistrationNumber:
+      profile.alternativeRegistrationNumber ?? "",
+    requestReminderEnabled: profile.requestReminderEnabled,
+    reservationReminderEnabled: profile.reservationReminderEnabled,
   });
 
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [prevData, setPrevData] = useState(data);
-
-  if (data !== prevData) {
-    setPrevData(data);
-    if (data?.profile) {
-      setFormData({
-        registrationNumber: data.profile.registrationNumber ?? "",
-        alternativeRegistrationNumber:
-          data.profile.alternativeRegistrationNumber ?? "",
-        requestReminderEnabled: data.profile.requestReminderEnabled,
-        reservationReminderEnabled: data.profile.reservationReminderEnabled,
-      });
-    }
-  }
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -50,26 +65,6 @@ function Profile() {
       console.error("Failed to update profile:", error);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div>
-        <PageHeader title="Profile" />
-        <p className="text-[var(--color-text-secondary)]">Loading profile...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div>
-        <PageHeader title="Profile" />
-        <p className="text-[var(--color-danger)]">
-          Error loading profile: {error.message}
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div>
