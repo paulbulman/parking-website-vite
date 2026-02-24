@@ -1,6 +1,9 @@
 name: CI
 
-on: pull_request
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
 
 jobs:
   build:
@@ -31,6 +34,20 @@ jobs:
 
       - run: npm ci
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(npx playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ steps.playwright-version.outputs.version }}-chromium
+
       - run: npx playwright install --with-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+
+      - run: npx playwright install-deps chromium
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
 
       - run: npx playwright test --project=mock-chromium
