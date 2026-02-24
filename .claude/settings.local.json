@@ -7,7 +7,13 @@
       "Bash(npm run lint)",
       "Bash(npm run build:*)",
       "Bash(npm test:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(cd \"C:/Users/Paul/source/repos/paulbulman/parking-website-vite\" && npx playwright test --project=mock-chromium 2>&1)",
+      "Bash(cd \"C:/Users/Paul/source/repos/paulbulman/parking-website-vite\" && npx tsc --noEmit -p tsconfig.test.json 2>&1)",
+      "Bash(cd \"C:/Users/Paul/source/repos/paulbulman/parking-website-vite\" && npx tsc -b 2>&1)",
+      "Bash(cd \"C:/Users/Paul/source/repos/paulbulman/parking-website-vite\" && npm run lint 2>&1 && npx playwright test --project=mock-chromium 2>&1)",
+      "Bash(cd \"C:/Users/Paul/source/repos/paulbulman/parking-website-vite\" && npx tsc -b 2>&1 && npm run lint 2>&1)",
+      "Bash(cd \"C:/Users/Paul/source/repos/paulbulman/parking-website-vite\" && npx tsc -b 2>&1 && npm run lint 2>&1 && npx playwright test --project=mock-chromium 2>&1)"
     ]
   }
 }
