@@ -1,6 +1,25 @@
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+const checkResponse = (response: Response) => {
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      `API request failed: ${response.status} ${response.statusText}`,
+    );
+  }
+};
+
 export const get = async <T>(
   getToken: () => Promise<string | undefined>,
-  endpoint: string
+  endpoint: string,
 ) => {
   const url = createFullUrl(endpoint);
 
@@ -10,6 +29,7 @@ export const get = async <T>(
   };
 
   const response = await fetch(url, requestOptions);
+  checkResponse(response);
   const data: T = await response.json();
 
   return data;
@@ -31,6 +51,7 @@ export const patch =
     };
 
     const response = await fetch(url, requestOptions);
+    checkResponse(response);
     const data: TRequestResult = await response.json();
 
     return data;
@@ -52,6 +73,7 @@ export const post =
     };
 
     const response = await fetch(url, requestOptions);
+    checkResponse(response);
     const data: TRequestResult = await response.json();
 
     return data;
@@ -59,7 +81,7 @@ export const post =
 
 export const httpDelete = async (
   getToken: () => Promise<string | undefined>,
-  endpoint: string
+  endpoint: string,
 ) => {
   const url = createFullUrl(endpoint);
 
@@ -69,7 +91,8 @@ export const httpDelete = async (
     headers: { Authorization: "Bearer " + token },
   };
 
-  await fetch(url, requestOptions);
+  const response = await fetch(url, requestOptions);
+  checkResponse(response);
 
   return undefined as never;
 };

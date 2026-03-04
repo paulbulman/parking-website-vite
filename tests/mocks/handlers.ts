@@ -52,6 +52,16 @@ export async function mockSummaryApi(page: Page, data?: SummaryResponse) {
   );
 }
 
+export async function mockUnauthorizedApi(page: Page, endpoint: string) {
+  await page.route(`**/${endpoint}`, (route) =>
+    route.fulfill({
+      status: 401,
+      contentType: 'application/json',
+      body: JSON.stringify({ message: 'Unauthorized' }),
+    }),
+  );
+}
+
 export function buildProfileResponse(): ProfileResponse {
   return {
     profile: {

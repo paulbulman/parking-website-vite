@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthProvider';
+import { AuthQueryProvider } from './components/AuthQueryProvider';
 import ProtectedRoute from './components/ProtectedRoute';
 import { PermissionGuard } from './components/PermissionGuard';
 import { USER_ADMIN, TEAM_LEADER } from './hooks/useUserClaims';
@@ -26,19 +26,10 @@ import Privacy from './pages/Privacy';
 import AccessDenied from './pages/AccessDenied';
 import NotFound from './pages/NotFound';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
-
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+    <AuthProvider>
+      <AuthQueryProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<PublicLayout />}>
@@ -114,8 +105,8 @@ function App() {
             </Route>
           </Routes>
         </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+      </AuthQueryProvider>
+    </AuthProvider>
   );
 }
 
