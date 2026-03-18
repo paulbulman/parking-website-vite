@@ -69,6 +69,23 @@ describe("DayLink", () => {
     expect(link).not.toHaveAttribute("data-problem");
   });
 
+  it("displays null status as dash with No status accessible label", () => {
+    renderWithProviders(
+      <DayLink day={makeDay({ data: { status: null } })} variant="desktop" />
+    );
+
+    expect(screen.getByText("-")).toBeInTheDocument();
+    expect(screen.getByRole("link")).toHaveAccessibleName(/No status/);
+  });
+
+  it("displays hardInterrupted status as Interrupted", () => {
+    renderWithProviders(
+      <DayLink day={makeDay({ data: { status: "hardInterrupted" } })} variant="desktop" />
+    );
+
+    expect(screen.getByText("Interrupted")).toBeInTheDocument();
+  });
+
   it("renders mobile variant", () => {
     renderWithProviders(<DayLink day={makeDay()} variant="mobile" />);
 

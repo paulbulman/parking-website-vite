@@ -88,6 +88,52 @@ describe("SetPasswordContent", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/profile", { replace: true });
   });
 
+  it("checks password mismatch before pwned check", async () => {
+    const actor = userEvent.setup();
+
+    renderWithProviders(<SetPasswordContent from="/" />);
+
+    await actor.type(screen.getByLabelText("New Password"), "password1");
+    await actor.type(screen.getByLabelText("Confirm Password"), "password2");
+    await actor.click(screen.getByRole("button", { name: "Set Password" }));
+
+    expect(screen.getByText("Passwords do not match")).toBeInTheDocument();
+    expect(mockPwnedPassword).not.toHaveBeenCalled();
+  });
+
+  it("shows fallback error message for non-Error exceptions", async () => {
+    mockConfirmSignIn.mockRejectedValue("unexpected string error");
+    const actor = userEvent.setup();
+
+    renderWithProviders(<SetPasswordContent from="/" />);
+
+    await actor.type(screen.getByLabelText("New Password"), "newpass123");
+    await actor.type(screen.getByLabelText("Confirm Password"), "newpass123");
+    await actor.click(screen.getByRole("button", { name: "Set Password" }));
+
+    expect(screen.getByText("Failed to set password")).toBeInTheDocument();
+  });
+
+  it("disables inputs and shows loading text during submission", async () => {
+    let resolveConfirm: (value: unknown) => void;
+    mockConfirmSignIn.mockImplementation(
+      () => new Promise((resolve) => { resolveConfirm = resolve; })
+    );
+    const actor = userEvent.setup();
+
+    renderWithProviders(<SetPasswordContent from="/" />);
+
+    await actor.type(screen.getByLabelText("New Password"), "newpass123");
+    await actor.type(screen.getByLabelText("Confirm Password"), "newpass123");
+    await actor.click(screen.getByRole("button", { name: "Set Password" }));
+
+    expect(screen.getByLabelText("New Password")).toBeDisabled();
+    expect(screen.getByLabelText("Confirm Password")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Setting password..." })).toBeDisabled();
+
+    resolveConfirm!(undefined);
+  });
+
   it("shows error when confirmSignIn fails", async () => {
     mockConfirmSignIn.mockRejectedValue(new Error("Invalid password format"));
     const actor = userEvent.setup();

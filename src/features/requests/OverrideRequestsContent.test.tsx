@@ -13,12 +13,10 @@ vi.mock("react-router-dom", async (importOriginal) => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockUseUserRequests = vi.fn();
+
 vi.mock("../../hooks/api/queries/userRequests", () => ({
-  useUserRequests: () => ({
-    data: null,
-    isLoading: false,
-    error: null,
-  }),
+  useUserRequests: (...args: unknown[]) => mockUseUserRequests(...args),
 }));
 
 vi.mock("../../hooks/api/mutations/editUserRequests", () => ({
@@ -33,6 +31,11 @@ const users = [
 describe("OverrideRequestsContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseUserRequests.mockReturnValue({
+      data: null,
+      isLoading: false,
+      error: null,
+    });
     vi.mocked(useEditUserRequests).mockReturnValue({
       editUserRequests: mockEditUserRequests,
       isSaving: false,
@@ -70,5 +73,43 @@ describe("OverrideRequestsContent", () => {
     renderWithProviders(<OverrideRequestsContent users={users} />);
 
     expect(screen.getByLabelText("Select User")).toBeInTheDocument();
+  });
+
+  it("does not show Save and Cancel buttons when no user is selected", () => {
+    renderWithProviders(<OverrideRequestsContent users={users} />);
+
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Cancel" })).not.toBeInTheDocument();
+  });
+
+  it("navigates home on cancel", async () => {
+    mockUseUserRequests.mockReturnValue({
+      data: {
+        requests: {
+          weeks: [
+            {
+              days: [
+                {
+                  localDate: "2024-01-15",
+                  hidden: false,
+                  data: { requested: false },
+                },
+              ],
+            },
+          ],
+        },
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    const actor = userEvent.setup();
+
+    renderWithProviders(<OverrideRequestsContent users={users} />);
+
+    await actor.selectOptions(screen.getByLabelText("Select User"), "user-1");
+    await actor.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(mockNavigate).toHaveBeenCalledWith("/");
   });
 });

@@ -81,6 +81,38 @@ describe("DeleteUserContent", () => {
     expect(screen.getByText("This action cannot be undone.")).toBeInTheDocument();
   });
 
+  it("displays dashes for null optional fields", () => {
+    renderWithProviders(
+      <DeleteUserContent
+        user={{
+          ...user,
+          registrationNumber: null,
+          alternativeRegistrationNumber: null,
+          commuteDistance: null,
+        }}
+        userId="user-1"
+      />
+    );
+
+    const dashes = screen.getAllByText("-");
+    expect(dashes).toHaveLength(3);
+  });
+
+  it("disables buttons and shows deleting text while deleting", () => {
+    vi.mocked(useDeleteUser).mockReturnValue({
+      deleteUser: mockDeleteUser,
+      isDeleting: true,
+      isError: false,
+    });
+
+    renderWithProviders(
+      <DeleteUserContent user={user} userId="user-1" />
+    );
+
+    expect(screen.getByRole("button", { name: "Deleting..." })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+
   it("shows error message when delete fails", () => {
     vi.mocked(useDeleteUser).mockReturnValue({
       deleteUser: mockDeleteUser,

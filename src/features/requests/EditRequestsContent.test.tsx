@@ -85,6 +85,41 @@ describe("EditRequestsContent", () => {
     expect(screen.getByText("Failed to save requests. Please try again.")).toBeInTheDocument();
   });
 
+  it("does not render checkboxes for hidden days", () => {
+    const dataWithHiddenDay = makeCalendarData();
+    dataWithHiddenDay.weeks[0].days.push({
+      localDate: "2024-01-17",
+      hidden: true,
+      data: { requested: false },
+    });
+
+    renderWithProviders(
+      <EditRequestsContent
+        requests={dataWithHiddenDay}
+        initialWeekIndex={0}
+      />
+    );
+
+    expect(screen.getByRole("checkbox", { name: /15 Jan/ })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /16 Jan/ })).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: /17 Jan/ })).not.toBeInTheDocument();
+  });
+
+  it("disables Save and Cancel buttons when saving", () => {
+    vi.mocked(useEditRequests).mockReturnValue({
+      editRequests: mockEditRequests,
+      isSaving: true,
+      isError: false,
+    });
+
+    renderWithProviders(
+      <EditRequestsContent requests={makeCalendarData()} initialWeekIndex={0} />
+    );
+
+    expect(screen.getByRole("button", { name: "Saving..." })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+
   it("navigates home on cancel", async () => {
     const actor = userEvent.setup();
 

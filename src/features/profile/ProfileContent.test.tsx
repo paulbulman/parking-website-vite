@@ -109,4 +109,68 @@ describe("ProfileContent", () => {
 
     expect(screen.queryByText("Failed to save profile. Please try again.")).not.toBeInTheDocument();
   });
+
+  it("initialises null registration numbers as empty strings", () => {
+    const profileWithNulls = {
+      ...profile,
+      registrationNumber: null,
+      alternativeRegistrationNumber: null,
+    };
+
+    renderWithProviders(<ProfileContent profile={profileWithNulls} />);
+
+    expect(screen.getByLabelText("Registration number")).toHaveValue("");
+    expect(screen.getByLabelText("Alternative registration number")).toHaveValue("");
+  });
+
+  it("sends empty registration numbers as null when saving", async () => {
+    mockEditProfile.mockResolvedValue(undefined);
+    const actor = userEvent.setup();
+
+    const profileWithValues = {
+      ...profile,
+      registrationNumber: "AB12 CDE",
+      alternativeRegistrationNumber: "FG34 HIJ",
+    };
+
+    renderWithProviders(<ProfileContent profile={profileWithValues} />);
+
+    await actor.clear(screen.getByLabelText("Registration number"));
+    await actor.clear(screen.getByLabelText("Alternative registration number"));
+
+    await actor.click(screen.getByRole("button", { name: "Save" }));
+
+    expect(mockEditProfile).toHaveBeenCalledWith({
+      registrationNumber: null,
+      alternativeRegistrationNumber: null,
+      requestReminderEnabled: true,
+      reservationReminderEnabled: false,
+    });
+  });
+
+  it("toggles request reminder checkbox", async () => {
+    const actor = userEvent.setup();
+
+    renderWithProviders(<ProfileContent profile={profile} />);
+
+    const checkbox = screen.getByRole("checkbox", { name: /requests reminder/i });
+    expect(checkbox).toBeChecked();
+
+    await actor.click(checkbox);
+
+    expect(checkbox).not.toBeChecked();
+  });
+
+  it("disables save button and shows saving text while saving", () => {
+    vi.mocked(useEditProfile).mockReturnValue({
+      editProfile: mockEditProfile,
+      isSaving: true,
+      isError: false,
+    });
+
+    renderWithProviders(<ProfileContent profile={profile} />);
+
+    const button = screen.getByRole("button", { name: "Saving..." });
+    expect(button).toBeDisabled();
+  });
 });

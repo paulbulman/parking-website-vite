@@ -101,6 +101,57 @@ describe("ResetPasswordContent", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/", { replace: true });
   });
 
+  it("disables inputs and shows loading text during submission", async () => {
+    let resolveReset: (value: unknown) => void;
+    mockConfirmResetPassword.mockImplementation(
+      () => new Promise((resolve) => { resolveReset = resolve; })
+    );
+    const actor = userEvent.setup();
+
+    renderWithProviders(<ResetPasswordContent username="testuser" />);
+
+    await actor.type(screen.getByLabelText("Reset Code"), "123456");
+    await actor.type(screen.getByLabelText("New Password"), "newpass123");
+    await actor.type(screen.getByLabelText("Confirm Password"), "newpass123");
+    await actor.click(screen.getByRole("button", { name: "Reset Password" }));
+
+    expect(screen.getByLabelText("Reset Code")).toBeDisabled();
+    expect(screen.getByLabelText("New Password")).toBeDisabled();
+    expect(screen.getByLabelText("Confirm Password")).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Resetting password..." })).toBeDisabled();
+
+    resolveReset!(undefined);
+  });
+
+  it("shows error when auto sign-in fails after reset", async () => {
+    mockConfirmResetPassword.mockResolvedValue(undefined);
+    mockSignIn.mockRejectedValue(new Error("Auto sign-in failed"));
+    const actor = userEvent.setup();
+
+    renderWithProviders(<ResetPasswordContent username="testuser" />);
+
+    await actor.type(screen.getByLabelText("Reset Code"), "123456");
+    await actor.type(screen.getByLabelText("New Password"), "newpass123");
+    await actor.type(screen.getByLabelText("Confirm Password"), "newpass123");
+    await actor.click(screen.getByRole("button", { name: "Reset Password" }));
+
+    expect(screen.getByText("Auto sign-in failed")).toBeInTheDocument();
+  });
+
+  it("shows fallback error message for non-Error exceptions", async () => {
+    mockConfirmResetPassword.mockRejectedValue("unexpected string error");
+    const actor = userEvent.setup();
+
+    renderWithProviders(<ResetPasswordContent username="testuser" />);
+
+    await actor.type(screen.getByLabelText("Reset Code"), "123456");
+    await actor.type(screen.getByLabelText("New Password"), "newpass123");
+    await actor.type(screen.getByLabelText("Confirm Password"), "newpass123");
+    await actor.click(screen.getByRole("button", { name: "Reset Password" }));
+
+    expect(screen.getByText("Failed to reset password")).toBeInTheDocument();
+  });
+
   it("shows error when reset fails", async () => {
     mockConfirmResetPassword.mockRejectedValue(new Error("Invalid code"));
     const actor = userEvent.setup();

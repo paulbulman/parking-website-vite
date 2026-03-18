@@ -104,6 +104,31 @@ describe("EditUserContent", () => {
     });
   });
 
+  it("initialises null optional fields as empty strings", () => {
+    renderWithProviders(
+      <EditUserContent
+        user={{
+          ...user,
+          registrationNumber: null,
+          alternativeRegistrationNumber: null,
+          commuteDistance: null,
+        }}
+        userId="user-1"
+      />
+    );
+
+    expect(screen.getByLabelText("Registration number")).toHaveValue("");
+    expect(screen.getByLabelText("Alternative registration number")).toHaveValue("");
+    expect(screen.getByLabelText("Commute distance (mi)")).toHaveValue(null);
+  });
+
+  it("does not render email fields", () => {
+    renderWithProviders(<EditUserContent user={user} userId="user-1" />);
+
+    expect(screen.queryByLabelText("Email")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Confirm email")).not.toBeInTheDocument();
+  });
+
   it("shows error message when save fails", () => {
     vi.mocked(useEditUser).mockReturnValue({
       editUser: mockEditUser,

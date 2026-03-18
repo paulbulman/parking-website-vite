@@ -134,6 +134,19 @@ describe("AddUserContent", () => {
     expect(screen.queryByText("Email addresses do not match")).not.toBeInTheDocument();
   });
 
+  it("disables buttons and shows saving text while saving", () => {
+    vi.mocked(useAddUser).mockReturnValue({
+      addUser: mockAddUser,
+      isSaving: true,
+      isError: false,
+    });
+
+    renderWithProviders(<AddUserContent />);
+
+    expect(screen.getByRole("button", { name: "Adding..." })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+  });
+
   it("shows error message when save fails", () => {
     vi.mocked(useAddUser).mockReturnValue({
       addUser: mockAddUser,

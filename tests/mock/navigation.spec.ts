@@ -80,6 +80,72 @@ test.describe('Permission-based navigation', () => {
   });
 });
 
+test.describe('Navigation link visibility', () => {
+  test('team leader sees Edit Reservations and Override Requests nav links', async ({ page, mockApi, applyMockApi, authenticateAs }) => {
+    await authenticateAs('teamLeader');
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/');
+
+    const nav = page.getByRole('navigation');
+    await expect(nav.getByRole('link', { name: 'Edit Reservations' })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Override Requests' })).toBeVisible();
+  });
+
+  test('user admin sees Users nav link', async ({ page, mockApi, applyMockApi, authenticateAs }) => {
+    await authenticateAs('userAdmin');
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/');
+
+    const nav = page.getByRole('navigation');
+    await expect(nav.getByRole('link', { name: 'Users' })).toBeVisible();
+  });
+
+  test('regular user does not see Edit Reservations, Override Requests, or Users nav links', async ({ page, mockApi, applyMockApi, authenticateAs }) => {
+    await authenticateAs('none');
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/');
+
+    const nav = page.getByRole('navigation');
+    await expect(nav.getByRole('link', { name: 'Edit Reservations' })).toBeHidden();
+    await expect(nav.getByRole('link', { name: 'Override Requests' })).toBeHidden();
+    await expect(nav.getByRole('link', { name: 'Users' })).toBeHidden();
+  });
+
+  test('all authenticated users see Home and Registration Numbers nav links', async ({ page, mockApi, applyMockApi, authenticateAs }) => {
+    await authenticateAs('none');
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/');
+
+    const nav = page.getByRole('navigation');
+    await expect(nav.getByRole('link', { name: 'Home' })).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Registration Numbers' })).toBeVisible();
+  });
+});
+
+test.describe('Footer', () => {
+  test('footer contains Privacy Policy link', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/');
+
+    const footer = page.getByRole('contentinfo');
+    await expect(footer.getByRole('link', { name: 'Privacy Policy' })).toBeVisible();
+  });
+
+  test('footer contains GNU General Public License v3 link', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/');
+
+    const footer = page.getByRole('contentinfo');
+    await expect(footer.getByRole('link', { name: 'GNU General Public License v3' })).toBeVisible();
+  });
+});
+
 test.describe('404 page', () => {
   test('unknown route shows 404 page', async ({ page, mockApi, applyMockApi }) => {
     mockApi.summary = createSummaryResponse();

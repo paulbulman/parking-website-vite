@@ -69,6 +69,27 @@ describe("HomeContent", () => {
     expect(onWeekChange).toHaveBeenCalledWith(1);
   });
 
+  it("does not render hidden days as links", () => {
+    const summary = {
+      weeks: [
+        {
+          days: [
+            { localDate: "2024-01-15", hidden: false, data: { status: "allocated" as const, isProblem: false } },
+            { localDate: "2024-01-16", hidden: true, data: { status: "allocated" as const, isProblem: false } },
+            { localDate: "2024-01-17", hidden: false, data: { status: "allocated" as const, isProblem: false } },
+          ],
+        },
+      ],
+    };
+
+    renderWithProviders(
+      <HomeContent summary={summary} currentWeekIndex={0} onWeekChange={vi.fn()} />
+    );
+
+    const links = screen.getAllByRole("link");
+    expect(links).toHaveLength(2);
+  });
+
   it("calls onWeekChange when previous week button is clicked", async () => {
     const onWeekChange = vi.fn();
     const actor = userEvent.setup();
