@@ -3,4 +3,5 @@ export { default as Input } from "./Input";
 export { default as Select } from "./Select";
 export { default as Card } from "./Card";
 export { default as PageHeader } from "./PageHeader";
+export { default as QueryPage } from "./QueryPage";
 export { default as Alert } from "./Alert";

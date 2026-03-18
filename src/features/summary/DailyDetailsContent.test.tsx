@@ -1,0 +1,136 @@
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { renderWithProviders } from "../../test-utils";
+import { DailyDetailsContent } from "./DailyDetailsContent";
+
+const mockStayInterrupted = vi.fn();
+
+vi.mock("../../hooks/api/mutations/stayInterrupted", () => ({
+  useStayInterrupted: () => ({
+    stayInterrupted: mockStayInterrupted,
+    isSaving: false,
+  }),
+}));
+
+const makeData = (overrides = {}) => ({
+  details: [
+    {
+      localDate: "2024-01-15",
+      hidden: false,
+      data: {
+        allocatedUsers: [{ name: "Alice", isHighlighted: false }],
+        interruptedUsers: [{ name: "Bob", isHighlighted: true }],
+        pendingUsers: [{ name: "Charlie", isHighlighted: false }],
+        stayInterruptedStatus: { isAllowed: false, isSet: false },
+        ...overrides,
+      },
+    },
+  ],
+});
+
+describe("DailyDetailsContent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("displays allocated users with count", () => {
+    renderWithProviders(
+      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+    );
+
+    expect(screen.getByText("Allocated (1)")).toBeInTheDocument();
+    expect(screen.getByText("Alice")).toBeInTheDocument();
+  });
+
+  it("displays interrupted users with count", () => {
+    renderWithProviders(
+      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+    );
+
+    expect(screen.getByText("Interrupted (1)")).toBeInTheDocument();
+    expect(screen.getByText("Bob")).toBeInTheDocument();
+  });
+
+  it("displays pending users with count", () => {
+    renderWithProviders(
+      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+    );
+
+    expect(screen.getByText("Pending (1)")).toBeInTheDocument();
+    expect(screen.getByText("Charlie")).toBeInTheDocument();
+  });
+
+  it("shows no requests message when there are no users", () => {
+    renderWithProviders(
+      <DailyDetailsContent
+        data={makeData({
+          allocatedUsers: [],
+          interruptedUsers: [],
+          pendingUsers: [],
+        })}
+        urlDate="2024-01-15"
+      />
+    );
+
+    expect(
+      screen.getByText("There are no requests for the selected date.")
+    ).toBeInTheDocument();
+  });
+
+  it("shows stay interrupted button when allowed and not set", () => {
+    renderWithProviders(
+      <DailyDetailsContent
+        data={makeData({
+          stayInterruptedStatus: { isAllowed: true, isSet: false },
+        })}
+        urlDate="2024-01-15"
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "Stay interrupted" })).toBeInTheDocument();
+  });
+
+  it("shows re-request space button when stay interrupted is set", () => {
+    renderWithProviders(
+      <DailyDetailsContent
+        data={makeData({
+          stayInterruptedStatus: { isAllowed: true, isSet: true },
+        })}
+        urlDate="2024-01-15"
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "Re-request space" })).toBeInTheDocument();
+  });
+
+  it("calls stayInterrupted mutation when button is clicked", async () => {
+    mockStayInterrupted.mockResolvedValue(undefined);
+    const actor = userEvent.setup();
+
+    renderWithProviders(
+      <DailyDetailsContent
+        data={makeData({
+          stayInterruptedStatus: { isAllowed: true, isSet: false },
+        })}
+        urlDate="2024-01-15"
+      />
+    );
+
+    await actor.click(screen.getByRole("button", { name: "Stay interrupted" }));
+
+    expect(mockStayInterrupted).toHaveBeenCalledWith({
+      localDate: "2024-01-15",
+      stayInterrupted: true,
+    });
+  });
+
+  it("does not show stay interrupted button when not allowed", () => {
+    renderWithProviders(
+      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+    );
+
+    expect(screen.queryByRole("button", { name: "Stay interrupted" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Re-request space" })).not.toBeInTheDocument();
+  });
+});
