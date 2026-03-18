@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { useEditReservations } from "../../hooks/api/mutations/editReservations";
+import { useCalendarChanges } from "../../hooks/useCalendarChanges";
 import { Button, Alert } from "../../components/ui";
-import ReservationsCalendar from "./ReservationsCalendar";
+import { ReservationsCalendar } from "./ReservationsCalendar";
 import type { components } from "../../hooks/api/types";
 
 type ReservationsResponse = components["schemas"]["ReservationsResponse"];
 
-export function EditReservationsContent({ data }: { data: ReservationsResponse }) {
-  const { editReservations, isSaving } = useEditReservations();
+export function EditReservationsContent({
+  users,
+  shortLeadTimeSpaces,
+  reservations,
+}: ReservationsResponse) {
+  const { editReservations, isSaving, isError } = useEditReservations();
 
-  const [changedSelections, setChangedSelections] = useState<
-    Record<string, string[]>
-  >({});
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
-
-  const { users, shortLeadTimeSpaces, reservations } = data;
 
   const initialSelections: Record<string, string[]> = Object.fromEntries(
     reservations.weeks
@@ -24,12 +24,12 @@ export function EditReservationsContent({ data }: { data: ReservationsResponse }
       .map((day) => [day.localDate, day.data!.userIds])
   );
 
-  const selections: Record<string, string[]> = Object.fromEntries(
-    Object.keys(initialSelections).map((localDate) => [
-      localDate,
-      changedSelections[localDate] ?? initialSelections[localDate],
-    ])
-  );
+  const {
+    merged: selections,
+    changes: changedSelections,
+    update,
+    reset,
+  } = useCalendarChanges(initialSelections);
 
   const handleSelectionChange = (
     localDate: string,
@@ -39,10 +39,7 @@ export function EditReservationsContent({ data }: { data: ReservationsResponse }
     const currentSelections = selections[localDate] || [];
     const newSelections = [...currentSelections];
     newSelections[index] = userId;
-    setChangedSelections((prev) => ({
-      ...prev,
-      [localDate]: newSelections,
-    }));
+    update(localDate, newSelections);
   };
 
   const handleSave = async () => {
@@ -58,11 +55,11 @@ export function EditReservationsContent({ data }: { data: ReservationsResponse }
 
       await editReservations({ reservations: reservationsArray });
 
-      setChangedSelections({});
+      reset();
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error) {
-      console.error("Error saving reservations:", error);
+    } catch {
+      // Prevent reset/notification; error state is tracked by the mutation hook
     }
   };
 
@@ -85,6 +82,11 @@ export function EditReservationsContent({ data }: { data: ReservationsResponse }
         {saveSuccess && (
           <Alert variant="success" className="py-2">
             Reservations saved successfully!
+          </Alert>
+        )}
+        {isError && (
+          <Alert variant="error" className="py-2">
+            Failed to save reservations. Please try again.
           </Alert>
         )}
       </div>

@@ -3,63 +3,48 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/useAuthContext";
 import { useUserClaims } from "../hooks/useUserClaims";
 
-interface NavLinkProps {
+interface NavItem {
+  to: string;
+  label: string;
+  visible?: boolean;
+}
+
+const variantStyles = {
+  desktop: {
+    base: "flex items-center px-3 py-2 text-sm font-medium rounded transition-colors",
+    active: "bg-[var(--color-nav-active)] text-white",
+    inactive: "text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white",
+  },
+  mobile: {
+    base: "block px-4 py-2.5 text-sm font-medium rounded transition-colors",
+    active: "bg-[var(--color-nav-active)] text-white border-l-3 border-[var(--color-primary)]",
+    inactive: "text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white",
+  },
+} as const;
+
+function AppNavLink({
+  to,
+  children,
+  variant,
+  onClick,
+}: {
   to: string;
   children: React.ReactNode;
+  variant: "desktop" | "mobile";
   onClick?: () => void;
-}
-
-function DesktopNavLink({ to, children }: NavLinkProps) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `flex items-center px-3 py-2 text-sm font-medium rounded transition-colors ${
-          isActive
-            ? "bg-[var(--color-nav-active)] text-white"
-            : "text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white"
-        }`
-      }
-    >
-      {children}
-    </NavLink>
-  );
-}
-
-function MobileNavLink({ to, children, onClick }: NavLinkProps) {
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `block px-4 py-2.5 text-sm font-medium rounded transition-colors ${
-          isActive
-            ? "bg-[var(--color-nav-active)] text-white border-l-3 border-[var(--color-primary)]"
-            : "text-gray-300 hover:bg-[var(--color-nav-hover)] hover:text-white"
-        }`
-      }
-      onClick={onClick}
-    >
-      {children}
-    </NavLink>
-  );
-}
-
-function LogoutButton({
-  onClick,
-  isMobile = false,
-}: {
-  onClick: () => void;
-  isMobile?: boolean;
 }) {
+  const styles = variantStyles[variant];
+
   return (
-    <button
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `${styles.base} ${isActive ? styles.active : styles.inactive}`
+      }
       onClick={onClick}
-      className={`text-sm font-medium text-gray-300 rounded transition-colors hover:bg-[var(--color-nav-hover)] hover:text-white ${
-        isMobile ? "block w-full text-left px-4 py-2.5" : "px-3 py-2"
-      }`}
     >
-      Logout
-    </button>
+      {children}
+    </NavLink>
   );
 }
 
@@ -75,6 +60,22 @@ function Layout() {
     navigate("/login");
   };
 
+  const mainNavItems: NavItem[] = [
+    { to: "/", label: "Home" },
+    { to: "/registration-numbers", label: "Registration Numbers" },
+    { to: "/edit-reservations", label: "Edit Reservations", visible: isTeamLeader() },
+    { to: "/override-requests", label: "Override Requests", visible: isTeamLeader() },
+    { to: "/users", label: "Users", visible: isUserAdmin() },
+  ];
+
+  const secondaryNavItems: NavItem[] = [
+    { to: "/profile", label: firstName || "Profile" },
+    { to: "/faq", label: "FAQ" },
+  ];
+
+  const visibleMainItems = mainNavItems.filter((item) => item.visible !== false);
+  const allNavItems = [...visibleMainItems, ...secondaryNavItems];
+
   return (
     <div className="flex flex-col min-h-screen">
       <nav className="bg-[var(--color-nav)] shadow-lg">
@@ -82,30 +83,24 @@ function Layout() {
           <div className="flex justify-between h-14">
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-1">
-              <DesktopNavLink to="/">Home</DesktopNavLink>
-              <DesktopNavLink to="/registration-numbers">
-                Registration Numbers
-              </DesktopNavLink>
-              {isTeamLeader() && (
-                <DesktopNavLink to="/edit-reservations">
-                  Edit Reservations
-                </DesktopNavLink>
-              )}
-              {isTeamLeader() && (
-                <DesktopNavLink to="/override-requests">
-                  Override Requests
-                </DesktopNavLink>
-              )}
-              {isUserAdmin() && (
-                <DesktopNavLink to="/users">Users</DesktopNavLink>
-              )}
+              {visibleMainItems.map((item) => (
+                <AppNavLink key={item.to} to={item.to} variant="desktop">
+                  {item.label}
+                </AppNavLink>
+              ))}
             </div>
             <div className="hidden md:flex items-center gap-1">
-              <DesktopNavLink to="/profile">
-                {firstName || "Profile"}
-              </DesktopNavLink>
-              <DesktopNavLink to="/faq">FAQ</DesktopNavLink>
-              <LogoutButton onClick={handleLogout} />
+              {secondaryNavItems.map((item) => (
+                <AppNavLink key={item.to} to={item.to} variant="desktop">
+                  {item.label}
+                </AppNavLink>
+              ))}
+              <button
+                onClick={handleLogout}
+                className={`${variantStyles.desktop.base} ${variantStyles.desktop.inactive}`}
+              >
+                Logout
+              </button>
             </div>
 
             {/* Mobile menu button */}
@@ -146,52 +141,22 @@ function Layout() {
           {mobileMenuOpen && (
             <div className="md:hidden pb-4 pt-2 border-t border-gray-700">
               <div className="flex flex-col gap-1">
-                <MobileNavLink to="/" onClick={() => setMobileMenuOpen(false)}>
-                  Home
-                </MobileNavLink>
-                <MobileNavLink
-                  to="/registration-numbers"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Registration Numbers
-                </MobileNavLink>
-                {isTeamLeader() && (
-                  <MobileNavLink
-                    to="/edit-reservations"
+                {allNavItems.map((item) => (
+                  <AppNavLink
+                    key={item.to}
+                    to={item.to}
+                    variant="mobile"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    Edit Reservations
-                  </MobileNavLink>
-                )}
-                {isTeamLeader() && (
-                  <MobileNavLink
-                    to="/override-requests"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Override Requests
-                  </MobileNavLink>
-                )}
-                {isUserAdmin() && (
-                  <MobileNavLink
-                    to="/users"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Users
-                  </MobileNavLink>
-                )}
-                <MobileNavLink
-                  to="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
+                    {item.label}
+                  </AppNavLink>
+                ))}
+                <button
+                  onClick={handleLogout}
+                  className={`${variantStyles.mobile.base} ${variantStyles.mobile.inactive} w-full text-left`}
                 >
-                  {firstName || "Profile"}
-                </MobileNavLink>
-                <MobileNavLink
-                  to="/faq"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  FAQ
-                </MobileNavLink>
-                <LogoutButton onClick={handleLogout} isMobile />
+                  Logout
+                </button>
               </div>
             </div>
           )}

@@ -1,12 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../../../contexts/useAuthContext";
 import { patch } from "../helpers";
-import type { operations } from "../types";
-
-type EditRequestsRequestBody =
-  operations["Requests_Patch"]["requestBody"]["content"]["application/json"];
-type EditRequestsRequestResult =
-  operations["Requests_Patch"]["responses"]["200"]["content"]["application/json"];
+import type { ApiRequestBody, ApiResponse } from "../apiTypes";
 
 export const useEditRequests = () => {
   const endpoint = "requests";
@@ -14,16 +9,21 @@ export const useEditRequests = () => {
   const { getToken } = useAuthContext();
 
   const mutation = useMutation<
-    EditRequestsRequestResult,
+    ApiResponse<"Requests_Patch">,
     Error,
-    EditRequestsRequestBody
+    ApiRequestBody<"Requests_Patch">
   >({
     mutationFn: patch(getToken, endpoint),
     onSuccess: (data) => {
       queryClient.setQueryData([endpoint], data);
       queryClient.invalidateQueries({ queryKey: ["summary"] });
     },
+    onError: (error) => {
+      console.error("Failed to save requests:", error);
+    },
   });
-  const { mutateAsync: editRequests, isPending: isSaving } = mutation;
-  return { editRequests, isSaving };
+
+  const { mutateAsync: editRequests, isPending: isSaving, isError } = mutation;
+
+  return { editRequests, isSaving, isError };
 };

@@ -44,12 +44,12 @@ function FAQPage() {
               At 11am each working day, further spaces are released for the
               subsequent working day.
             </li>
-            <p className="mt-2">
-              This aims to give some sort of balance between allowing people to
-              make travel plans in advance, versus keeping some flexibility for
-              people moved onto certain shifts at short notice.
-            </p>
           </ul>
+          <p className="mt-2">
+            This aims to give some sort of balance between allowing people to
+            make travel plans in advance, versus keeping some flexibility for
+            people moved onto certain shifts at short notice.
+          </p>
         </FAQItem>
 
         <FAQItem question="How are spaces allocated?">

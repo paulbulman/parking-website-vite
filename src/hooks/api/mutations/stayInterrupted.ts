@@ -1,12 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../../../contexts/useAuthContext";
 import { patch } from "../helpers";
-import type { operations } from "../types";
-
-type StayInterruptedRequestBody =
-  operations["DailyDetails_Patch"]["requestBody"]["content"]["application/json"];
-type StayInterruptedRequestResult =
-  operations["DailyDetails_Patch"]["responses"]["200"]["content"]["application/json"];
+import type { ApiRequestBody, ApiResponse } from "../apiTypes";
 
 export const useStayInterrupted = () => {
   const endpoint = "stayInterrupted";
@@ -14,15 +9,20 @@ export const useStayInterrupted = () => {
   const { getToken } = useAuthContext();
 
   const mutation = useMutation<
-    StayInterruptedRequestResult,
+    ApiResponse<"DailyDetails_Patch">,
     Error,
-    StayInterruptedRequestBody
+    ApiRequestBody<"DailyDetails_Patch">
   >({
     mutationFn: patch(getToken, endpoint),
     onSuccess: (data) => {
       queryClient.setQueryData(["dailyDetails"], data);
     },
+    onError: (error) => {
+      console.error("Failed to update status:", error);
+    },
   });
-  const { mutateAsync: stayInterrupted, isPending: isSaving } = mutation;
-  return { stayInterrupted, isSaving };
+
+  const { mutateAsync: stayInterrupted, isPending: isSaving, isError } = mutation;
+
+  return { stayInterrupted, isSaving, isError };
 };

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test-utils";
 import { EditRequestsContent } from "./EditRequestsContent";
+import { useEditRequests } from "../../hooks/api/mutations/editRequests";
 
 const mockEditRequests = vi.fn();
 const mockNavigate = vi.fn();
@@ -13,10 +14,7 @@ vi.mock("react-router-dom", async (importOriginal) => ({
 }));
 
 vi.mock("../../hooks/api/mutations/editRequests", () => ({
-  useEditRequests: () => ({
-    editRequests: mockEditRequests,
-    isSaving: false,
-  }),
+  useEditRequests: vi.fn(),
 }));
 
 const makeCalendarData = () => ({
@@ -41,15 +39,20 @@ const makeCalendarData = () => ({
 describe("EditRequestsContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useEditRequests).mockReturnValue({
+      editRequests: mockEditRequests,
+      isSaving: false,
+      isError: false,
+    });
   });
 
-  it("renders checkboxes matching initial request state", () => {
+  it("renders checkboxes for each day", () => {
     renderWithProviders(
       <EditRequestsContent requests={makeCalendarData()} initialWeekIndex={0} />
     );
 
-    const checkboxes = screen.getAllByRole("checkbox");
-    expect(checkboxes.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("checkbox", { name: /15 Jan/ })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /16 Jan/ })).toBeInTheDocument();
   });
 
   it("calls editRequests with changed data on save", async () => {
@@ -60,17 +63,26 @@ describe("EditRequestsContent", () => {
       <EditRequestsContent requests={makeCalendarData()} initialWeekIndex={0} />
     );
 
-    // Click the first unchecked checkbox (there are mobile + desktop versions)
-    const checkboxes = screen.getAllByRole("checkbox");
-    await actor.click(checkboxes[0]);
-
-    // Click the first Save button
-    const saveButtons = screen.getAllByRole("button", { name: "Save" });
-    await actor.click(saveButtons[0]);
+    await actor.click(screen.getByRole("checkbox", { name: /15 Jan/ }));
+    await actor.click(screen.getByRole("button", { name: "Save" }));
 
     expect(mockEditRequests).toHaveBeenCalledWith({
       requests: [{ localDate: "2024-01-15", requested: true }],
     });
+  });
+
+  it("shows error message when save fails", () => {
+    vi.mocked(useEditRequests).mockReturnValue({
+      editRequests: mockEditRequests,
+      isSaving: false,
+      isError: true,
+    });
+
+    renderWithProviders(
+      <EditRequestsContent requests={makeCalendarData()} initialWeekIndex={0} />
+    );
+
+    expect(screen.getByText("Failed to save requests. Please try again.")).toBeInTheDocument();
   });
 
   it("navigates home on cancel", async () => {
@@ -80,8 +92,7 @@ describe("EditRequestsContent", () => {
       <EditRequestsContent requests={makeCalendarData()} initialWeekIndex={0} />
     );
 
-    const cancelButtons = screen.getAllByRole("button", { name: "Cancel" });
-    await actor.click(cancelButtons[0]);
+    await actor.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(mockNavigate).toHaveBeenCalledWith("/?week=0");
   });

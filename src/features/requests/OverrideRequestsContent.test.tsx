@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test-utils";
 import { OverrideRequestsContent } from "./OverrideRequestsContent";
+import { useEditUserRequests } from "../../hooks/api/mutations/editUserRequests";
 
 const mockNavigate = vi.fn();
 const mockEditUserRequests = vi.fn();
@@ -21,10 +22,7 @@ vi.mock("../../hooks/api/queries/userRequests", () => ({
 }));
 
 vi.mock("../../hooks/api/mutations/editUserRequests", () => ({
-  useEditUserRequests: () => ({
-    editUserRequests: mockEditUserRequests,
-    isSaving: false,
-  }),
+  useEditUserRequests: vi.fn(),
 }));
 
 const users = [
@@ -35,6 +33,11 @@ const users = [
 describe("OverrideRequestsContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useEditUserRequests).mockReturnValue({
+      editUserRequests: mockEditUserRequests,
+      isSaving: false,
+      isError: false,
+    });
   });
 
   it("renders user selector with users", () => {

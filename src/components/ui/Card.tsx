@@ -6,7 +6,7 @@ interface CardProps {
   elevated?: boolean;
 }
 
-function Card({ children, className = "", elevated = false }: CardProps) {
+export function Card({ children, className = "", elevated = false }: CardProps) {
   return (
     <div className={`${elevated ? "card-elevated" : "card"} p-6 ${className}`}>
       {children}
@@ -14,4 +14,3 @@ function Card({ children, className = "", elevated = false }: CardProps) {
   );
 }
 
-export default Card;

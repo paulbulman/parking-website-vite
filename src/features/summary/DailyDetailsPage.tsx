@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import { useDailyDetails } from "../../hooks/api/queries/dailyDetails";
 import { QueryPage } from "../../components/ui";
 import { DailyDetailsContent } from "./DailyDetailsContent";
@@ -8,7 +8,7 @@ function DailyDetailsPage() {
 
   return (
     <QueryPage title="Daily Details" query={useDailyDetails()}>
-      {(data) => <DailyDetailsContent data={data} urlDate={date} />}
+      {(data) => <DailyDetailsContent details={data.details} urlDate={date} />}
     </QueryPage>
   );
 }

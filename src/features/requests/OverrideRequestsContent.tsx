@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRequests } from "../../hooks/api/queries/userRequests";
 import { useEditUserRequests } from "../../hooks/api/mutations/editUserRequests";
-import RequestsCalendar from "./RequestsCalendar";
-import { Button, Select } from "../../components/ui";
+import { useCalendarChanges } from "../../hooks/useCalendarChanges";
+import { RequestsCalendar } from "./RequestsCalendar";
+import { Alert, Button, Select } from "../../components/ui";
 import type { components } from "../../hooks/api/types";
 
 type UsersListUser = components["schemas"]["UsersListUser"];
@@ -11,16 +12,13 @@ type UsersListUser = components["schemas"]["UsersListUser"];
 export function OverrideRequestsContent({ users }: { users: UsersListUser[] }) {
   const navigate = useNavigate();
   const [selectedUserId, setSelectedUserId] = useState<string>("");
-  const [changedRequests, setChangedRequests] = useState<
-    Record<string, boolean>
-  >({});
 
   const {
     data: userRequestsData,
     isLoading: isLoadingRequests,
     error: requestsError,
   } = useUserRequests({ userId: selectedUserId });
-  const { editUserRequests, isSaving } = useEditUserRequests({
+  const { editUserRequests, isSaving, isError } = useEditUserRequests({
     userId: selectedUserId,
   });
 
@@ -31,13 +29,15 @@ export function OverrideRequestsContent({ users }: { users: UsersListUser[] }) {
       .map((day) => [day.localDate, day.data!.requested])
   );
 
-  const requests = { ...initialRequests, ...changedRequests };
+  const {
+    merged: requests,
+    changes: changedRequests,
+    update,
+    reset,
+  } = useCalendarChanges(initialRequests);
 
   const handleCheckboxChange = (localDate: string) => {
-    setChangedRequests((prev) => ({
-      ...prev,
-      [localDate]: !requests[localDate],
-    }));
+    update(localDate, !requests[localDate]);
   };
 
   const handleSave = async () => {
@@ -53,8 +53,8 @@ export function OverrideRequestsContent({ users }: { users: UsersListUser[] }) {
 
       await editUserRequests({ requests: requestsArray });
       navigate("/");
-    } catch (error) {
-      console.error("Error saving requests:", error);
+    } catch {
+      // Prevent navigation; error state is tracked by the mutation hook
     }
   };
 
@@ -71,7 +71,7 @@ export function OverrideRequestsContent({ users }: { users: UsersListUser[] }) {
           value={selectedUserId}
           onChange={(e) => {
             setSelectedUserId(e.target.value);
-            setChangedRequests({});
+            reset();
           }}
         >
           <option value="">(None)</option>
@@ -118,6 +118,11 @@ export function OverrideRequestsContent({ users }: { users: UsersListUser[] }) {
             >
               Cancel
             </Button>
+            {isError && (
+              <Alert variant="error" className="py-2">
+                Failed to save requests. Please try again.
+              </Alert>
+            )}
           </div>
         </>
       )}

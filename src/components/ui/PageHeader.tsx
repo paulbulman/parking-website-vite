@@ -5,7 +5,7 @@ interface PageHeaderProps {
   action?: ReactNode;
 }
 
-function PageHeader({ title, action }: PageHeaderProps) {
+export function PageHeader({ title, action }: PageHeaderProps) {
   return (
     <div className="flex justify-between items-center mb-6">
       <h1 className="text-2xl font-semibold text-[var(--color-text)]">
@@ -16,4 +16,3 @@ function PageHeader({ title, action }: PageHeaderProps) {
   );
 }
 
-export default PageHeader;

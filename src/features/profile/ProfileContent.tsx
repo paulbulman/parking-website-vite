@@ -6,8 +6,8 @@ import type { components } from "../../hooks/api/types";
 
 type ProfileData = components["schemas"]["ProfileData"];
 
-export function ProfileForm({ profile }: { profile: ProfileData }) {
-  const { editProfile, isSaving } = useEditProfile();
+export function ProfileContent({ profile }: { profile: ProfileData }) {
+  const { editProfile, isSaving, isError } = useEditProfile();
   const { isTeamLeader } = useUserClaims();
 
   const [formData, setFormData] = useState({
@@ -34,8 +34,8 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
       });
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (error) {
-      console.error("Failed to update profile:", error);
+    } catch {
+      // Prevent navigation/state updates; error state is tracked by the mutation hook
     }
   };
 
@@ -120,6 +120,11 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
           {saveSuccess && (
             <Alert variant="success" className="py-2">
               Profile saved successfully!
+            </Alert>
+          )}
+          {isError && (
+            <Alert variant="error" className="py-2">
+              Failed to save profile. Please try again.
             </Alert>
           )}
         </div>

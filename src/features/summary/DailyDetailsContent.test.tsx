@@ -3,14 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test-utils";
 import { DailyDetailsContent } from "./DailyDetailsContent";
+import { useStayInterrupted } from "../../hooks/api/mutations/stayInterrupted";
 
 const mockStayInterrupted = vi.fn();
 
 vi.mock("../../hooks/api/mutations/stayInterrupted", () => ({
-  useStayInterrupted: () => ({
-    stayInterrupted: mockStayInterrupted,
-    isSaving: false,
-  }),
+  useStayInterrupted: vi.fn(),
 }));
 
 const makeData = (overrides = {}) => ({
@@ -32,11 +30,16 @@ const makeData = (overrides = {}) => ({
 describe("DailyDetailsContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useStayInterrupted).mockReturnValue({
+      stayInterrupted: mockStayInterrupted,
+      isSaving: false,
+      isError: false,
+    });
   });
 
   it("displays allocated users with count", () => {
     renderWithProviders(
-      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+      <DailyDetailsContent details={makeData().details} urlDate="2024-01-15" />
     );
 
     expect(screen.getByText("Allocated (1)")).toBeInTheDocument();
@@ -45,7 +48,7 @@ describe("DailyDetailsContent", () => {
 
   it("displays interrupted users with count", () => {
     renderWithProviders(
-      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+      <DailyDetailsContent details={makeData().details} urlDate="2024-01-15" />
     );
 
     expect(screen.getByText("Interrupted (1)")).toBeInTheDocument();
@@ -54,7 +57,7 @@ describe("DailyDetailsContent", () => {
 
   it("displays pending users with count", () => {
     renderWithProviders(
-      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+      <DailyDetailsContent details={makeData().details} urlDate="2024-01-15" />
     );
 
     expect(screen.getByText("Pending (1)")).toBeInTheDocument();
@@ -64,11 +67,11 @@ describe("DailyDetailsContent", () => {
   it("shows no requests message when there are no users", () => {
     renderWithProviders(
       <DailyDetailsContent
-        data={makeData({
+        details={makeData({
           allocatedUsers: [],
           interruptedUsers: [],
           pendingUsers: [],
-        })}
+        }).details}
         urlDate="2024-01-15"
       />
     );
@@ -81,9 +84,9 @@ describe("DailyDetailsContent", () => {
   it("shows stay interrupted button when allowed and not set", () => {
     renderWithProviders(
       <DailyDetailsContent
-        data={makeData({
+        details={makeData({
           stayInterruptedStatus: { isAllowed: true, isSet: false },
-        })}
+        }).details}
         urlDate="2024-01-15"
       />
     );
@@ -94,9 +97,9 @@ describe("DailyDetailsContent", () => {
   it("shows re-request space button when stay interrupted is set", () => {
     renderWithProviders(
       <DailyDetailsContent
-        data={makeData({
+        details={makeData({
           stayInterruptedStatus: { isAllowed: true, isSet: true },
-        })}
+        }).details}
         urlDate="2024-01-15"
       />
     );
@@ -110,9 +113,9 @@ describe("DailyDetailsContent", () => {
 
     renderWithProviders(
       <DailyDetailsContent
-        data={makeData({
+        details={makeData({
           stayInterruptedStatus: { isAllowed: true, isSet: false },
-        })}
+        }).details}
         urlDate="2024-01-15"
       />
     );
@@ -127,10 +130,29 @@ describe("DailyDetailsContent", () => {
 
   it("does not show stay interrupted button when not allowed", () => {
     renderWithProviders(
-      <DailyDetailsContent data={makeData()} urlDate="2024-01-15" />
+      <DailyDetailsContent details={makeData().details} urlDate="2024-01-15" />
     );
 
     expect(screen.queryByRole("button", { name: "Stay interrupted" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Re-request space" })).not.toBeInTheDocument();
+  });
+
+  it("shows error message when stay interrupted fails", () => {
+    vi.mocked(useStayInterrupted).mockReturnValue({
+      stayInterrupted: mockStayInterrupted,
+      isSaving: false,
+      isError: true,
+    });
+
+    renderWithProviders(
+      <DailyDetailsContent
+        details={makeData({
+          stayInterruptedStatus: { isAllowed: true, isSet: false },
+        }).details}
+        urlDate="2024-01-15"
+      />
+    );
+
+    expect(screen.getByText("Failed to update status. Please try again.")).toBeInTheDocument();
   });
 });

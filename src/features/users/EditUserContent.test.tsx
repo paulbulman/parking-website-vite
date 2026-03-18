@@ -2,20 +2,19 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test-utils";
-import { EditUserForm } from "./EditUserForm";
+import { EditUserContent } from "./EditUserContent";
+import { useEditUser } from "../../hooks/api/mutations/editUser";
 
 const mockEditUser = vi.fn();
 const mockNavigate = vi.fn();
 
-vi.mock("react-router", async (importOriginal) => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
   ...(await importOriginal()),
   useNavigate: () => mockNavigate,
 }));
 
 vi.mock("../../hooks/api/mutations/editUser", () => ({
-  useEditUser: () => ({
-    editUser: mockEditUser,
-  }),
+  useEditUser: vi.fn(),
 }));
 
 const user = {
@@ -27,13 +26,18 @@ const user = {
   commuteDistance: 12.5,
 };
 
-describe("EditUserForm", () => {
+describe("EditUserContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useEditUser).mockReturnValue({
+      editUser: mockEditUser,
+      isSaving: false,
+      isError: false,
+    });
   });
 
   it("initialises form fields from user props", () => {
-    renderWithProviders(<EditUserForm user={user} userId="user-1" />);
+    renderWithProviders(<EditUserContent user={user} userId="user-1" />);
 
     expect(screen.getByLabelText("First name")).toHaveValue("John");
     expect(screen.getByLabelText("Last name")).toHaveValue("Doe");
@@ -46,7 +50,7 @@ describe("EditUserForm", () => {
     mockEditUser.mockResolvedValue(undefined);
     const actor = userEvent.setup();
 
-    renderWithProviders(<EditUserForm user={user} userId="user-1" />);
+    renderWithProviders(<EditUserContent user={user} userId="user-1" />);
 
     await actor.clear(screen.getByLabelText("First name"));
     await actor.type(screen.getByLabelText("First name"), "Jane");
@@ -66,7 +70,7 @@ describe("EditUserForm", () => {
   it("navigates to users on cancel", async () => {
     const actor = userEvent.setup();
 
-    renderWithProviders(<EditUserForm user={user} userId="user-1" />);
+    renderWithProviders(<EditUserContent user={user} userId="user-1" />);
 
     await actor.click(screen.getByRole("button", { name: "Cancel" }));
 
@@ -78,7 +82,7 @@ describe("EditUserForm", () => {
     const actor = userEvent.setup();
 
     renderWithProviders(
-      <EditUserForm
+      <EditUserContent
         user={{
           ...user,
           registrationNumber: null,
@@ -98,5 +102,18 @@ describe("EditUserForm", () => {
       alternativeRegistrationNumber: null,
       commuteDistance: null,
     });
+  });
+
+  it("shows error message when save fails", () => {
+    vi.mocked(useEditUser).mockReturnValue({
+      editUser: mockEditUser,
+      isSaving: false,
+      isError: true,
+    });
+
+    renderWithProviders(<EditUserContent user={user} userId="user-1" />);
+
+    expect(screen.getByText("Failed to update user. Please try again.")).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

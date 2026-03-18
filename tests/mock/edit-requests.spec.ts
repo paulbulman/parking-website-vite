@@ -11,13 +11,14 @@ test.describe('Edit requests page', () => {
     await expect(page.getByRole('heading', { name: 'Edit Requests' })).toBeVisible();
   });
 
-  test('displays checkboxes for each day with accessible labels', async ({ page, mockApi, applyMockApi }) => {
+  test('displays checkboxes for each day in desktop table', async ({ page, mockApi, applyMockApi }) => {
     mockApi.requests = createRequestsResponse();
     await applyMockApi();
     await page.goto('/edit-requests');
 
-    await expect(page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ })).toBeVisible();
-    await expect(page.getByRole('checkbox', { name: /Request parking for Tue 4 Mar/ })).toBeVisible();
+    const table = page.locator('table');
+    await expect(table.getByLabel(/Request parking for Mon 3 Mar/)).toBeVisible();
+    await expect(table.getByLabel(/Request parking for Tue 4 Mar/)).toBeVisible();
   });
 
   test('checkboxes reflect initial request state', async ({ page, mockApi, applyMockApi }) => {
@@ -25,8 +26,9 @@ test.describe('Edit requests page', () => {
     await applyMockApi();
     await page.goto('/edit-requests');
 
-    await expect(page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ })).toBeChecked();
-    await expect(page.getByRole('checkbox', { name: /Request parking for Tue 4 Mar/ })).not.toBeChecked();
+    const table = page.locator('table');
+    await expect(table.getByLabel(/Request parking for Mon 3 Mar/)).toBeChecked();
+    await expect(table.getByLabel(/Request parking for Tue 4 Mar/)).not.toBeChecked();
   });
 
   test('toggling a checkbox changes its state', async ({ page, mockApi, applyMockApi }) => {
@@ -34,7 +36,8 @@ test.describe('Edit requests page', () => {
     await applyMockApi();
     await page.goto('/edit-requests');
 
-    const checkbox = page.getByRole('checkbox', { name: /Request parking for Tue 4 Mar/ });
+    const table = page.locator('table');
+    const checkbox = table.getByLabel(/Request parking for Tue 4 Mar/);
     await expect(checkbox).not.toBeChecked();
     await checkbox.check();
     await expect(checkbox).toBeChecked();
@@ -45,7 +48,8 @@ test.describe('Edit requests page', () => {
     await applyMockApi();
     await page.goto('/edit-requests');
 
-    const checkbox = page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ });
+    const table = page.locator('table');
+    const checkbox = table.getByLabel(/Request parking for Mon 3 Mar/);
     await expect(checkbox).toBeChecked();
     await checkbox.uncheck();
     await expect(checkbox).not.toBeChecked();
@@ -134,5 +138,45 @@ test.describe('Edit requests page - mobile view', () => {
     await expect(checkbox).not.toBeChecked();
     await checkbox.check();
     await expect(checkbox).toBeChecked();
+  });
+
+  test('checkboxes reflect initial request state in mobile view', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.requests = createRequestsResponse();
+    await applyMockApi();
+    await page.goto('/edit-requests');
+
+    await expect(page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ })).toBeChecked();
+    await expect(page.getByRole('checkbox', { name: /Request parking for Tue 4 Mar/ })).not.toBeChecked();
+  });
+
+  test('unchecking a checked checkbox works in mobile view', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.requests = createRequestsResponse();
+    await applyMockApi();
+    await page.goto('/edit-requests');
+
+    const checkbox = page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ });
+    await expect(checkbox).toBeChecked();
+    await checkbox.uncheck();
+    await expect(checkbox).not.toBeChecked();
+  });
+
+  test('save navigates home in mobile view', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.requests = createRequestsResponse();
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/edit-requests');
+
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page).toHaveURL(/\/\?week=0/);
+  });
+
+  test('cancel navigates home in mobile view', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.requests = createRequestsResponse();
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/edit-requests');
+
+    await page.getByRole('button', { name: 'Cancel' }).click();
+    await expect(page).toHaveURL(/\/\?week=0/);
   });
 });

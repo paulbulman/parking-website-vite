@@ -1,20 +1,53 @@
 import { useState } from "react";
 import { useStayInterrupted } from "../../hooks/api/mutations/stayInterrupted";
-import { Button, Input } from "../../components/ui";
+import { Alert, Button, Input } from "../../components/ui";
 import type { components } from "../../hooks/api/types";
 
 type DailyDetailsResponse = components["schemas"]["DailyDetailsResponse"];
+type User = { name: string; isHighlighted: boolean };
+
+function UserList({
+  title,
+  users,
+  colorClass,
+}: {
+  title: string;
+  users: User[];
+  colorClass: string;
+}) {
+  if (users.length === 0) return null;
+
+  return (
+    <div>
+      <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
+        {title} ({users.length})
+      </h2>
+      <ul className="space-y-2" aria-label={`${title} users`}>
+        {users.map((user, index) => (
+          <li
+            key={index}
+            className={`px-4 py-2.5 ${colorClass} rounded-md ${
+              user.isHighlighted ? "font-semibold" : ""
+            }`}
+          >
+            {user.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function DailyDetailsContent({
-  data,
+  details,
   urlDate,
 }: {
-  data: DailyDetailsResponse;
+  details: DailyDetailsResponse["details"];
   urlDate?: string;
 }) {
-  const { stayInterrupted, isSaving } = useStayInterrupted();
+  const { stayInterrupted, isSaving, isError } = useStayInterrupted();
 
-  const availableDates = data.details.filter((d) => !d.hidden);
+  const availableDates = details.filter((d) => !d.hidden);
   const availableDateStrings = availableDates.map((d) => d.localDate);
 
   const initialDate =
@@ -22,7 +55,7 @@ export function DailyDetailsContent({
 
   const [selectedDate, setSelectedDate] = useState(initialDate);
 
-  const selectedDayData = data.details.find(
+  const selectedDayData = details.find(
     (d) => d.localDate === selectedDate
   )?.data;
 
@@ -42,17 +75,13 @@ export function DailyDetailsContent({
     }
   };
 
-  const handleStayInterruptedToggle = async () => {
+  const handleStayInterruptedToggle = () => {
     if (!selectedDate || !selectedDayData?.stayInterruptedStatus) return;
 
-    try {
-      await stayInterrupted({
-        localDate: selectedDate,
-        stayInterrupted: !selectedDayData.stayInterruptedStatus.isSet,
-      });
-    } catch (error) {
-      console.error("Error toggling stay interrupted:", error);
-    }
+    stayInterrupted({
+      localDate: selectedDate,
+      stayInterrupted: !selectedDayData.stayInterruptedStatus.isSet,
+    });
   };
 
   const minDate = availableDates[0]?.localDate;
@@ -81,65 +110,9 @@ export function DailyDetailsContent({
 
       {hasAnyUsers && (
         <div className="space-y-6">
-          {allocatedUsers.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
-                Allocated ({allocatedUsers.length})
-              </h2>
-              <ul className="space-y-2" aria-label="Allocated users">
-                {allocatedUsers.map((user, index) => (
-                  <li
-                    key={index}
-                    className={`px-4 py-2.5 status-allocated rounded-md ${
-                      user.isHighlighted ? "font-semibold" : ""
-                    }`}
-                  >
-                    {user.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {interruptedUsers.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
-                Interrupted ({interruptedUsers.length})
-              </h2>
-              <ul className="space-y-2" aria-label="Interrupted users">
-                {interruptedUsers.map((user, index) => (
-                  <li
-                    key={index}
-                    className={`px-4 py-2.5 status-interrupted rounded-md ${
-                      user.isHighlighted ? "font-semibold" : ""
-                    }`}
-                  >
-                    {user.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {pendingUsers.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
-                Pending ({pendingUsers.length})
-              </h2>
-              <ul className="space-y-2" aria-label="Pending users">
-                {pendingUsers.map((user, index) => (
-                  <li
-                    key={index}
-                    className={`px-4 py-2.5 status-pending rounded-md ${
-                      user.isHighlighted ? "font-semibold" : ""
-                    }`}
-                  >
-                    {user.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          <UserList title="Allocated" users={allocatedUsers} colorClass="color-success" />
+          <UserList title="Interrupted" users={interruptedUsers} colorClass="color-danger" />
+          <UserList title="Pending" users={pendingUsers} colorClass="color-warning" />
         </div>
       )}
 
@@ -152,6 +125,11 @@ export function DailyDetailsContent({
                 ? "Re-request space"
                 : "Stay interrupted"}
           </Button>
+          {isError && (
+            <Alert variant="error" className="py-2">
+              Failed to update status. Please try again.
+            </Alert>
+          )}
         </div>
       )}
     </>

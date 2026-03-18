@@ -69,6 +69,8 @@ test.describe('Users page', () => {
     await page.goto('/users');
 
     const table = page.getByRole('table', { name: 'Users' });
+    await expect(table.getByText('Jane')).toBeVisible();
+
     const dashes = table.getByText('-');
     const count = await dashes.count();
     expect(count).toBeGreaterThanOrEqual(3);

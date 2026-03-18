@@ -1,24 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../../../contexts/useAuthContext";
 import { patch } from "../helpers";
-import type { operations } from "../types";
+import type { ApiPathParams, ApiRequestBody, ApiResponse } from "../apiTypes";
 
-type EditUserRequestParameters =
-  operations["Users_Patch"]["parameters"]["path"];
-type EditUserRequestBody =
-  operations["Users_Patch"]["requestBody"]["content"]["application/json"];
-type EditUserRequestResult =
-  operations["Users_Patch"]["responses"]["200"]["content"]["application/json"];
-
-export const useEditUser = ({ userId }: EditUserRequestParameters) => {
+export const useEditUser = ({ userId }: ApiPathParams<"Users_Patch">) => {
   const endpoint = "users";
   const queryClient = useQueryClient();
   const { getToken } = useAuthContext();
 
   const mutation = useMutation<
-    EditUserRequestResult,
+    ApiResponse<"Users_Patch">,
     Error,
-    EditUserRequestBody
+    ApiRequestBody<"Users_Patch">
   >({
     mutationFn: patch(getToken, `${endpoint}/${userId}`),
     onSuccess: (data) => {
@@ -27,6 +20,12 @@ export const useEditUser = ({ userId }: EditUserRequestParameters) => {
       });
       queryClient.setQueryData([endpoint, userId], data);
     },
+    onError: (error) => {
+      console.error("Failed to update user:", error);
+    },
   });
-  return { editUser: mutation.mutateAsync };
+
+  const { mutateAsync: editUser, isPending: isSaving, isError } = mutation;
+
+  return { editUser, isSaving, isError };
 };

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContext, type AuthContextType } from '../contexts/AuthContext';
 import { useUserClaims, USER_ADMIN, TEAM_LEADER } from './useUserClaims';
 
@@ -39,8 +40,16 @@ function createAuthContext(overrides: Partial<AuthContextType> = {}): AuthContex
 }
 
 function createWrapper(authContext: AuthContextType) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
   return function Wrapper({ children }: { children: ReactNode }) {
-    return createElement(AuthContext.Provider, { value: authContext }, children);
+    return createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      createElement(AuthContext.Provider, { value: authContext }, children),
+    );
   };
 }
 
@@ -49,21 +58,6 @@ beforeEach(() => {
 });
 
 describe('useUserClaims', () => {
-  it('extracts permissions from JWT groups', async () => {
-    const auth = createAuthContext({
-      getToken: vi.fn().mockResolvedValue(buildToken(['UserAdmin', 'TeamLeader'])),
-    });
-
-    const { result } = renderHook(() => useUserClaims(), {
-      wrapper: createWrapper(auth),
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.permissions).toContain(USER_ADMIN);
-    expect(result.current.permissions).toContain(TEAM_LEADER);
-  });
-
   it('extracts first name from JWT', async () => {
     const auth = createAuthContext({
       getToken: vi.fn().mockResolvedValue(buildToken(['UserAdmin'], 'Alice')),
@@ -78,21 +72,7 @@ describe('useUserClaims', () => {
     expect(result.current.firstName).toBe('Alice');
   });
 
-  it('returns empty permissions when no groups in token', async () => {
-    const auth = createAuthContext({
-      getToken: vi.fn().mockResolvedValue(buildToken([])),
-    });
-
-    const { result } = renderHook(() => useUserClaims(), {
-      wrapper: createWrapper(auth),
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.permissions).toEqual([]);
-  });
-
-  it('returns empty permissions when not authenticated', async () => {
+  it('returns no permissions when not authenticated', async () => {
     const auth = createAuthContext({
       isAuthenticated: false,
     });
@@ -103,11 +83,12 @@ describe('useUserClaims', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.permissions).toEqual([]);
+    expect(result.current.isUserAdmin()).toBe(false);
+    expect(result.current.isTeamLeader()).toBe(false);
     expect(result.current.firstName).toBe('');
   });
 
-  it('returns empty permissions when token is undefined', async () => {
+  it('returns no permissions when token is undefined', async () => {
     const auth = createAuthContext({
       getToken: vi.fn().mockResolvedValue(undefined),
     });
@@ -118,7 +99,8 @@ describe('useUserClaims', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.permissions).toEqual([]);
+    expect(result.current.isUserAdmin()).toBe(false);
+    expect(result.current.isTeamLeader()).toBe(false);
   });
 
   it('filters out invalid group names', async () => {
@@ -132,22 +114,8 @@ describe('useUserClaims', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.permissions).toEqual([USER_ADMIN]);
-  });
-
-  it('hasPermission returns true for matching permission', async () => {
-    const auth = createAuthContext({
-      getToken: vi.fn().mockResolvedValue(buildToken(['UserAdmin'])),
-    });
-
-    const { result } = renderHook(() => useUserClaims(), {
-      wrapper: createWrapper(auth),
-    });
-
-    await waitFor(() => expect(result.current.isLoading).toBe(false));
-
-    expect(result.current.hasPermission(USER_ADMIN)).toBe(true);
-    expect(result.current.hasPermission(TEAM_LEADER)).toBe(false);
+    expect(result.current.isUserAdmin()).toBe(true);
+    expect(result.current.isTeamLeader()).toBe(false);
   });
 
   it('isUserAdmin and isTeamLeader helpers work correctly', async () => {
@@ -220,7 +188,8 @@ describe('useUserClaims', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.permissions).toEqual([]);
+    expect(result.current.isUserAdmin()).toBe(false);
+    expect(result.current.isTeamLeader()).toBe(false);
     expect(result.current.firstName).toBe('');
   });
 
@@ -235,7 +204,8 @@ describe('useUserClaims', () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
-    expect(result.current.permissions).toEqual([]);
+    expect(result.current.isUserAdmin()).toBe(false);
+    expect(result.current.isTeamLeader()).toBe(false);
     expect(result.current.firstName).toBe('');
   });
 });

@@ -3,14 +3,12 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test-utils";
 import { EditReservationsContent } from "./EditReservationsContent";
+import { useEditReservations } from "../../hooks/api/mutations/editReservations";
 
 const mockEditReservations = vi.fn();
 
 vi.mock("../../hooks/api/mutations/editReservations", () => ({
-  useEditReservations: () => ({
-    editReservations: mockEditReservations,
-    isSaving: false,
-  }),
+  useEditReservations: vi.fn(),
 }));
 
 const makeData = () => ({
@@ -37,26 +35,31 @@ const makeData = () => ({
 describe("EditReservationsContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useEditReservations).mockReturnValue({
+      editReservations: mockEditReservations,
+      isSaving: false,
+      isError: false,
+    });
   });
 
-  it("renders reservation dropdowns", () => {
-    renderWithProviders(<EditReservationsContent data={makeData()} />);
+  it("renders reservation dropdowns for each slot", () => {
+    renderWithProviders(<EditReservationsContent {...makeData()} />);
 
-    const selects = screen.getAllByRole("combobox");
-    expect(selects.length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("combobox", { name: /slot 1 for/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /slot 2 for/ })).toBeInTheDocument();
   });
 
   it("calls editReservations on save when selections change", async () => {
     mockEditReservations.mockResolvedValue(undefined);
     const actor = userEvent.setup();
 
-    renderWithProviders(<EditReservationsContent data={makeData()} />);
+    renderWithProviders(<EditReservationsContent {...makeData()} />);
 
-    // Select from the first available dropdown (there are mobile + desktop versions)
-    const selects = screen.getAllByRole("combobox");
-    await actor.selectOptions(selects[1], "user-2");
-
-    await actor.click(screen.getAllByRole("button", { name: "Save" })[0]);
+    await actor.selectOptions(
+      screen.getByRole("combobox", { name: /slot 2 for/ }),
+      "user-2"
+    );
+    await actor.click(screen.getByRole("button", { name: "Save" }));
 
     expect(mockEditReservations).toHaveBeenCalledWith({
       reservations: [
@@ -65,16 +68,29 @@ describe("EditReservationsContent", () => {
     });
   });
 
+  it("shows error message when save fails", () => {
+    vi.mocked(useEditReservations).mockReturnValue({
+      editReservations: mockEditReservations,
+      isSaving: false,
+      isError: true,
+    });
+
+    renderWithProviders(<EditReservationsContent {...makeData()} />);
+
+    expect(screen.getByText("Failed to save reservations. Please try again.")).toBeInTheDocument();
+  });
+
   it("shows success message after save", async () => {
     mockEditReservations.mockResolvedValue(undefined);
     const actor = userEvent.setup();
 
-    renderWithProviders(<EditReservationsContent data={makeData()} />);
+    renderWithProviders(<EditReservationsContent {...makeData()} />);
 
-    const selects = screen.getAllByRole("combobox");
-    await actor.selectOptions(selects[1], "user-2");
-
-    await actor.click(screen.getAllByRole("button", { name: "Save" })[0]);
+    await actor.selectOptions(
+      screen.getByRole("combobox", { name: /slot 2 for/ }),
+      "user-2"
+    );
+    await actor.click(screen.getByRole("button", { name: "Save" }));
 
     expect(screen.getByText("Reservations saved successfully!")).toBeInTheDocument();
   });

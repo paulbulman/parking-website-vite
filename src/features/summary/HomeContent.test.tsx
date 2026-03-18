@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { renderWithProviders } from "../../test-utils";
@@ -37,10 +37,7 @@ describe("HomeContent", () => {
       />
     );
 
-    // Mobile nav has week navigation buttons
-    const mobileNav = screen.getAllByRole("navigation", { name: "Weekly summary" })[0];
-    const previousButton = within(mobileNav).getByRole("button", { name: "Previous week" });
-    expect(previousButton).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Previous week" })).toBeDisabled();
   });
 
   it("disables next week button at last week", () => {
@@ -52,9 +49,7 @@ describe("HomeContent", () => {
       />
     );
 
-    const mobileNav = screen.getAllByRole("navigation", { name: "Weekly summary" })[0];
-    const nextButton = within(mobileNav).getByRole("button", { name: "Next week" });
-    expect(nextButton).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Next week" })).toBeDisabled();
   });
 
   it("calls onWeekChange when next week button is clicked", async () => {
@@ -69,9 +64,7 @@ describe("HomeContent", () => {
       />
     );
 
-    const mobileNav = screen.getAllByRole("navigation", { name: "Weekly summary" })[0];
-    const nextButton = within(mobileNav).getByRole("button", { name: "Next week" });
-    await actor.click(nextButton);
+    await actor.click(screen.getByRole("button", { name: "Next week" }));
 
     expect(onWeekChange).toHaveBeenCalledWith(1);
   });
@@ -88,9 +81,7 @@ describe("HomeContent", () => {
       />
     );
 
-    const mobileNav = screen.getAllByRole("navigation", { name: "Weekly summary" })[0];
-    const previousButton = within(mobileNav).getByRole("button", { name: "Previous week" });
-    await actor.click(previousButton);
+    await actor.click(screen.getByRole("button", { name: "Previous week" }));
 
     expect(onWeekChange).toHaveBeenCalledWith(0);
   });

@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { useUsers } from "../../hooks/api/queries/users";
 import { Button, QueryPage } from "../../components/ui";
 import { UsersContent } from "./UsersContent";

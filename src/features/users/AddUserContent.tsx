@@ -1,31 +1,37 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router";
-import { useEditUser } from "../../hooks/api/mutations/editUser";
-import { Button, Input, Card } from "../../components/ui";
-import type { components } from "../../hooks/api/types";
+import { useNavigate } from "react-router-dom";
+import { useAddUser } from "../../hooks/api/mutations/addUser";
+import { Button, Input, Card, Alert } from "../../components/ui";
 
-type UsersData = components["schemas"]["UsersData"];
-
-export function EditUserForm({ user, userId }: { user: UsersData; userId: string }) {
+export function AddUserContent() {
   const navigate = useNavigate();
-  const { editUser } = useEditUser({ userId });
+  const { addUser, isSaving, isError } = useAddUser();
 
   const [formData, setFormData] = useState({
-    firstName: user.firstName,
-    lastName: user.lastName,
-    registrationNumber: user.registrationNumber ?? "",
-    alternativeRegistrationNumber: user.alternativeRegistrationNumber ?? "",
-    commuteDistance: user.commuteDistance?.toString() ?? "",
+    emailAddress: "",
+    confirmEmail: "",
+    firstName: "",
+    lastName: "",
+    registrationNumber: "",
+    alternativeRegistrationNumber: "",
+    commuteDistance: "",
   });
 
-  const [isSaving, setIsSaving] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
+
+    if (formData.emailAddress !== formData.confirmEmail) {
+      setEmailError("Email addresses do not match");
+      return;
+    }
+
+    setEmailError("");
 
     try {
-      await editUser({
+      await addUser({
+        emailAddress: formData.emailAddress,
         firstName: formData.firstName,
         lastName: formData.lastName,
         registrationNumber: formData.registrationNumber || null,
@@ -36,10 +42,8 @@ export function EditUserForm({ user, userId }: { user: UsersData; userId: string
           : null,
       });
       navigate("/users");
-    } catch (error) {
-      console.error("Failed to update user:", error);
-    } finally {
-      setIsSaving(false);
+    } catch {
+      // Prevent navigation; error state is tracked by the mutation hook
     }
   };
 
@@ -50,6 +54,31 @@ export function EditUserForm({ user, userId }: { user: UsersData; userId: string
   return (
     <Card className="max-w-2xl">
       <form onSubmit={handleSubmit} className="space-y-5">
+        <Input
+          id="emailAddress"
+          label="Email"
+          type="email"
+          value={formData.emailAddress}
+          onChange={(e) => {
+            setFormData({ ...formData, emailAddress: e.target.value });
+            setEmailError("");
+          }}
+          required
+        />
+
+        <Input
+          id="confirmEmail"
+          label="Confirm email"
+          type="email"
+          value={formData.confirmEmail}
+          onChange={(e) => {
+            setFormData({ ...formData, confirmEmail: e.target.value });
+            setEmailError("");
+          }}
+          required
+          error={emailError}
+        />
+
         <Input
           id="firstName"
           label="First name"
@@ -108,7 +137,7 @@ export function EditUserForm({ user, userId }: { user: UsersData; userId: string
 
         <div className="flex gap-3 pt-4">
           <Button type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
+            {isSaving ? "Adding..." : "Add User"}
           </Button>
           <Button
             type="button"
@@ -118,6 +147,11 @@ export function EditUserForm({ user, userId }: { user: UsersData; userId: string
           >
             Cancel
           </Button>
+          {isError && (
+            <Alert variant="error" className="py-2">
+              Failed to add user. Please try again.
+            </Alert>
+          )}
         </div>
       </form>
     </Card>

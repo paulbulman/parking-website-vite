@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import PageHeader from "./PageHeader";
+import { PageHeader } from "./PageHeader";
 
 interface QueryPageProps<T> {
   title: string;
@@ -12,7 +12,7 @@ interface QueryPageProps<T> {
   children: (data: T) => ReactNode;
 }
 
-function QueryPage<T>({ title, action, query, children }: QueryPageProps<T>) {
+export function QueryPage<T>({ title, action, query, children }: QueryPageProps<T>) {
   return (
     <div>
       <PageHeader title={title} action={action} />
@@ -29,4 +29,3 @@ function QueryPage<T>({ title, action, query, children }: QueryPageProps<T>) {
   );
 }
 
-export default QueryPage;

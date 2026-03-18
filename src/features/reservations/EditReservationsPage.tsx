@@ -5,7 +5,13 @@ import { EditReservationsContent } from "./EditReservationsContent";
 function EditReservationsPage() {
   return (
     <QueryPage title="Edit Reservations" query={useReservations()}>
-      {(data) => <EditReservationsContent data={data} />}
+      {(data) => (
+        <EditReservationsContent
+          users={data.users}
+          shortLeadTimeSpaces={data.shortLeadTimeSpaces}
+          reservations={data.reservations}
+        />
+      )}
     </QueryPage>
   );
 }

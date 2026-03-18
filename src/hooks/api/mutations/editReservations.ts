@@ -1,12 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../../../contexts/useAuthContext";
 import { patch } from "../helpers";
-import type { operations } from "../types";
-
-type EditReservationsRequestBody =
-  operations["Reservations_Patch"]["requestBody"]["content"]["application/json"];
-type EditReservationsRequestResult =
-  operations["Reservations_Patch"]["responses"]["200"]["content"]["application/json"];
+import type { ApiRequestBody, ApiResponse } from "../apiTypes";
 
 export const useEditReservations = () => {
   const endpoint = "reservations";
@@ -14,15 +9,20 @@ export const useEditReservations = () => {
   const { getToken } = useAuthContext();
 
   const mutation = useMutation<
-    EditReservationsRequestResult,
+    ApiResponse<"Reservations_Patch">,
     Error,
-    EditReservationsRequestBody
+    ApiRequestBody<"Reservations_Patch">
   >({
     mutationFn: patch(getToken, endpoint),
     onSuccess: (data) => {
       queryClient.setQueryData([endpoint], data);
     },
+    onError: (error) => {
+      console.error("Failed to save reservations:", error);
+    },
   });
-  const { mutateAsync: editReservations, isPending: isSaving } = mutation;
-  return { editReservations, isSaving };
+
+  const { mutateAsync: editReservations, isPending: isSaving, isError } = mutation;
+
+  return { editReservations, isSaving, isError };
 };

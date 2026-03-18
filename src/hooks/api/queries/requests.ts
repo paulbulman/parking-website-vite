@@ -1,19 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { useAuthContext } from "../../../contexts/useAuthContext";
-import { get } from "../helpers";
-import type { operations } from "../types";
+import { useApiQuery } from "../useApiQuery";
+import type { ApiResponse } from "../apiTypes";
 
-type RequestsRequestResult =
-  operations["Requests_Get"]["responses"]["200"]["content"]["application/json"];
-
-export const useRequests = () => {
-  const endpoint = "requests";
-
-  const { getToken } = useAuthContext();
-
-  return useQuery({
-    queryKey: [endpoint],
-
-    queryFn: () => get<RequestsRequestResult>(getToken, endpoint),
-  });
-};
+export const useRequests = () =>
+  useApiQuery<ApiResponse<"Requests_Get">>("requests");

@@ -1,7 +1,9 @@
-export { default as Button } from "./Button";
-export { default as Input } from "./Input";
-export { default as Select } from "./Select";
-export { default as Card } from "./Card";
-export { default as PageHeader } from "./PageHeader";
-export { default as QueryPage } from "./QueryPage";
-export { default as Alert } from "./Alert";
+export { Button } from "./Button";
+export { Input } from "./Input";
+export { Select } from "./Select";
+export { Card } from "./Card";
+export { PageHeader } from "./PageHeader";
+export { QueryPage } from "./QueryPage";
+export { Alert } from "./Alert";
+export { WeekCalendar } from "./WeekCalendar";
+export { WeekNavigation } from "./WeekNavigation";

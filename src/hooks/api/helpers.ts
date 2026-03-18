@@ -37,7 +37,7 @@ export const get = async <T>(
 
 export const patch =
   (getToken: () => Promise<string | undefined>, endpoint: string) =>
-  async <TRequestBody, TRequestResult>(patchData: TRequestBody) => {
+  async <TRequestBody, TRequestResult>(body: TRequestBody) => {
     const url = createFullUrl(endpoint);
 
     const token = await getToken();
@@ -47,7 +47,7 @@ export const patch =
         Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(patchData),
+      body: JSON.stringify(body),
     };
 
     const response = await fetch(url, requestOptions);
@@ -59,7 +59,7 @@ export const patch =
 
 export const post =
   (getToken: () => Promise<string | undefined>, endpoint: string) =>
-  async <TRequestBody, TRequestResult>(patchData: TRequestBody) => {
+  async <TRequestBody, TRequestResult>(body: TRequestBody) => {
     const url = createFullUrl(endpoint);
 
     const token = await getToken();
@@ -69,7 +69,7 @@ export const post =
         Authorization: "Bearer " + token,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(patchData),
+      body: JSON.stringify(body),
     };
 
     const response = await fetch(url, requestOptions);

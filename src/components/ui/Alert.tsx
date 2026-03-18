@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type AlertVariant = "success" | "error" | "info";
+type AlertVariant = "success" | "error";
 
 interface AlertProps {
   variant: AlertVariant;
@@ -9,12 +9,11 @@ interface AlertProps {
 }
 
 const variantClasses: Record<AlertVariant, string> = {
-  success: "status-allocated",
-  error: "status-interrupted",
-  info: "bg-[var(--color-primary-subtle)] text-[var(--color-primary)] border border-[var(--color-primary)]/20",
+  success: "color-success",
+  error: "color-danger",
 };
 
-function Alert({ variant, children, className = "" }: AlertProps) {
+export function Alert({ variant, children, className = "" }: AlertProps) {
   return (
     <div className={`${variantClasses[variant]} rounded-md px-4 py-3 ${className}`}>
       {children}
@@ -22,4 +21,3 @@ function Alert({ variant, children, className = "" }: AlertProps) {
   );
 }
 
-export default Alert;

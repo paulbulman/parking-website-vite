@@ -3,20 +3,18 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderWithProviders } from "../../test-utils";
 import { DeleteUserContent } from "./DeleteUserContent";
+import { useDeleteUser } from "../../hooks/api/mutations/deleteUser";
 
 const mockDeleteUser = vi.fn();
 const mockNavigate = vi.fn();
 
-vi.mock("react-router", async (importOriginal) => ({
+vi.mock("react-router-dom", async (importOriginal) => ({
   ...(await importOriginal()),
   useNavigate: () => mockNavigate,
 }));
 
 vi.mock("../../hooks/api/mutations/deleteUser", () => ({
-  useDeleteUser: () => ({
-    deleteUser: mockDeleteUser,
-    isDeleting: false,
-  }),
+  useDeleteUser: vi.fn(),
 }));
 
 const user = {
@@ -31,6 +29,11 @@ const user = {
 describe("DeleteUserContent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(useDeleteUser).mockReturnValue({
+      deleteUser: mockDeleteUser,
+      isDeleting: false,
+      isError: false,
+    });
   });
 
   it("displays user details", () => {
@@ -76,5 +79,20 @@ describe("DeleteUserContent", () => {
     );
 
     expect(screen.getByText("This action cannot be undone.")).toBeInTheDocument();
+  });
+
+  it("shows error message when delete fails", () => {
+    vi.mocked(useDeleteUser).mockReturnValue({
+      deleteUser: mockDeleteUser,
+      isDeleting: false,
+      isError: true,
+    });
+
+    renderWithProviders(
+      <DeleteUserContent user={user} userId="user-1" />
+    );
+
+    expect(screen.getByText("Failed to delete user. Please try again.")).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

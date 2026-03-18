@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { getStatusClasses, getStatusLabel, formatDate } from "./helpers";
+import { getStatusClasses, getStatusLabel } from "./helpers";
+import { formatDate } from "../../utils/formatDate";
 
 interface DayData {
   localDate: string;
@@ -30,7 +31,8 @@ export function DayLink({ day, variant }: DayLinkProps) {
       <Link
         to={`/daily-details/${day.localDate}`}
         aria-label={accessibleName}
-        className={`block rounded-lg p-4 transition-all hover:scale-[1.01] hover:shadow-md ${statusClasses} ${
+        data-problem={isProblem || undefined}
+      className={`block rounded-lg p-4 transition-all hover:scale-[1.01] hover:shadow-md ${statusClasses} ${
           isProblem ? "ring-2 ring-[var(--color-danger)] ring-inset" : ""
         }`}
       >
@@ -55,6 +57,7 @@ export function DayLink({ day, variant }: DayLinkProps) {
     <Link
       to={`/daily-details/${day.localDate}`}
       aria-label={accessibleName}
+      data-problem={isProblem || undefined}
       className={`block p-4 text-center transition-all hover:brightness-95 h-full ${statusClasses} ${
         isProblem ? "ring-2 ring-[var(--color-danger)] ring-inset" : ""
       }`}

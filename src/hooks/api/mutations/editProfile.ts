@@ -1,12 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "../../../contexts/useAuthContext";
 import { patch } from "../helpers";
-import type { operations } from "../types";
-
-type EditProfileRequestBody =
-  operations["Profiles_Patch"]["requestBody"]["content"]["application/json"];
-type EditProfileRequestResult =
-  operations["Profiles_Patch"]["responses"]["200"]["content"]["application/json"];
+import type { ApiRequestBody, ApiResponse } from "../apiTypes";
 
 export const useEditProfile = () => {
   const endpoint = "profiles";
@@ -14,9 +9,9 @@ export const useEditProfile = () => {
   const { getToken } = useAuthContext();
 
   const mutation = useMutation<
-    EditProfileRequestResult,
+    ApiResponse<"Profiles_Patch">,
     Error,
-    EditProfileRequestBody
+    ApiRequestBody<"Profiles_Patch">
   >({
     mutationFn: patch(getToken, endpoint),
     onSuccess: (data) => {
@@ -25,7 +20,12 @@ export const useEditProfile = () => {
       });
       queryClient.setQueryData([endpoint], data);
     },
+    onError: (error) => {
+      console.error("Failed to save profile:", error);
+    },
   });
-  const { mutateAsync: editProfile, isPending: isSaving } = mutation;
-  return { editProfile, isSaving };
+
+  const { mutateAsync: editProfile, isPending: isSaving, isError } = mutation;
+
+  return { editProfile, isSaving, isError };
 };

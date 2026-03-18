@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEditRequests } from "../../hooks/api/mutations/editRequests";
-import RequestsCalendar from "./RequestsCalendar";
-import { Button } from "../../components/ui";
+import { useCalendarChanges } from "../../hooks/useCalendarChanges";
+import { RequestsCalendar } from "./RequestsCalendar";
+import { Button, Alert } from "../../components/ui";
 import type { components } from "../../hooks/api/types";
 
 type CalendarOfRequestsData = components["schemas"]["CalendarOfRequestsData"];
@@ -15,10 +16,7 @@ export function EditRequestsContent({
   initialWeekIndex: number;
 }) {
   const navigate = useNavigate();
-  const { editRequests, isSaving } = useEditRequests();
-  const [changedRequests, setChangedRequests] = useState<
-    Record<string, boolean>
-  >({});
+  const { editRequests, isSaving, isError } = useEditRequests();
   const [currentWeekIndex, setCurrentWeekIndex] = useState(initialWeekIndex);
 
   const initialRequests: Record<string, boolean> = Object.fromEntries(
@@ -28,13 +26,14 @@ export function EditRequestsContent({
       .map((day) => [day.localDate, day.data!.requested])
   );
 
-  const requests = { ...initialRequests, ...changedRequests };
+  const {
+    merged: requests,
+    changes: changedRequests,
+    update,
+  } = useCalendarChanges(initialRequests);
 
   const handleCheckboxChange = (localDate: string) => {
-    setChangedRequests((prev) => ({
-      ...prev,
-      [localDate]: !requests[localDate],
-    }));
+    update(localDate, !requests[localDate]);
   };
 
   const handleSave = async () => {
@@ -48,8 +47,8 @@ export function EditRequestsContent({
 
       await editRequests({ requests: requestsArray });
       navigate(`/?week=${currentWeekIndex}`);
-    } catch (error) {
-      console.error("Error saving requests:", error);
+    } catch {
+      // Prevent navigation; error state is tracked by the mutation hook
     }
   };
 
@@ -74,6 +73,11 @@ export function EditRequestsContent({
         <Button variant="secondary" onClick={handleCancel} disabled={isSaving}>
           Cancel
         </Button>
+        {isError && (
+          <Alert variant="error" className="py-2">
+            Failed to save requests. Please try again.
+          </Alert>
+        )}
       </div>
     </>
   );

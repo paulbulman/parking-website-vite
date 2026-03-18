@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { useDeleteUser } from "../../hooks/api/mutations/deleteUser";
 import { Button, Card, Alert } from "../../components/ui";
 import type { components } from "../../hooks/api/types";
@@ -13,14 +13,14 @@ export function DeleteUserContent({
   userId: string;
 }) {
   const navigate = useNavigate();
-  const { deleteUser, isDeleting } = useDeleteUser();
+  const { deleteUser, isDeleting, isError } = useDeleteUser();
 
   const handleDelete = async () => {
     try {
       await deleteUser({ userId });
       navigate("/users");
-    } catch (error) {
-      console.error("Failed to delete user:", error);
+    } catch {
+      // Prevent navigation; error state is tracked by the mutation hook
     }
   };
 
@@ -34,30 +34,40 @@ export function DeleteUserContent({
         Are you sure you want to delete the following user?
       </p>
 
-      <div className="bg-[var(--color-bg-subtle)] p-4 rounded-md mb-6">
-        <p className="mb-2 text-[var(--color-text)]">
-          <span className="font-medium">Name:</span> {user.firstName}{" "}
-          {user.lastName}
-        </p>
-        <p className="mb-2 text-[var(--color-text)]">
-          <span className="font-medium">Registration number:</span>{" "}
-          {user.registrationNumber || (
-            <span className="text-[var(--color-text-muted)]">-</span>
-          )}
-        </p>
-        <p className="mb-2 text-[var(--color-text)]">
-          <span className="font-medium">Alternative registration number:</span>{" "}
-          {user.alternativeRegistrationNumber || (
-            <span className="text-[var(--color-text-muted)]">-</span>
-          )}
-        </p>
-        <p className="text-[var(--color-text)]">
-          <span className="font-medium">Commute distance:</span>{" "}
-          {user.commuteDistance ?? (
-            <span className="text-[var(--color-text-muted)]">-</span>
-          )}
-        </p>
-      </div>
+      <dl className="bg-[var(--color-bg-subtle)] p-4 rounded-md mb-6 text-[var(--color-text)]">
+        <div className="mb-2">
+          <dt className="inline font-medium">Name:</dt>{" "}
+          <dd className="inline">
+            {user.firstName} {user.lastName}
+          </dd>
+        </div>
+        <div className="mb-2">
+          <dt className="inline font-medium">Registration number:</dt>{" "}
+          <dd className="inline">
+            {user.registrationNumber || (
+              <span className="text-[var(--color-text-muted)]">-</span>
+            )}
+          </dd>
+        </div>
+        <div className="mb-2">
+          <dt className="inline font-medium">
+            Alternative registration number:
+          </dt>{" "}
+          <dd className="inline">
+            {user.alternativeRegistrationNumber || (
+              <span className="text-[var(--color-text-muted)]">-</span>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt className="inline font-medium">Commute distance:</dt>{" "}
+          <dd className="inline">
+            {user.commuteDistance ?? (
+              <span className="text-[var(--color-text-muted)]">-</span>
+            )}
+          </dd>
+        </div>
+      </dl>
 
       <Alert variant="error" className="mb-6">
         This action cannot be undone.
@@ -74,6 +84,11 @@ export function DeleteUserContent({
         >
           Cancel
         </Button>
+        {isError && (
+          <Alert variant="error" className="py-2">
+            Failed to delete user. Please try again.
+          </Alert>
+        )}
       </div>
     </Card>
   );

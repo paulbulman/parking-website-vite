@@ -33,20 +33,24 @@ src/features/
 
 Each feature contains:
 - `{Name}Page.tsx` — thin QueryPage shell (data fetching, route params)
-- `{Name}Content.tsx` or `{Name}Form.tsx` — exported, tested content component (receives data as props)
+- `{Name}Content.tsx` — exported, tested content component (receives data as props)
 - `{Name}Content.test.tsx` — unit tests
 
 Centralised (shared across features):
-- `src/components/ui/` — design system primitives (Button, Input, Card, etc.)
+- `src/components/ui/` — design system primitives (Button, Input, Card, WeekNavigation, etc.)
 - `src/components/{Layout,ProtectedRoute,PermissionGuard,PublicLayout,AuthQueryProvider}.tsx` — app shell
 - `src/contexts/` — auth context
-- `src/hooks/` — shared API layer (queries, mutations, types) and useUserClaims
+- `src/hooks/` — shared API layer (queries, mutations, types), useUserClaims, useCalendarChanges
+- `src/utils/` — shared utilities (formatDate)
 
 ## Key Files
 
 - `src/contexts/AuthContext.ts` - Auth context type, provides `getToken()` for API calls
 - `src/hooks/useUserClaims.ts` - Extracts permissions from JWT `cognito:groups`
+- `src/hooks/api/useApiQuery.ts` - Generic query hook factory (wraps useQuery + auth + get)
 - `src/hooks/api/helpers.ts` - API utilities, auto-attaches auth header
+- `src/hooks/useCalendarChanges.ts` - Delta-state hook for calendar editing (tracks changes vs initial)
+- `src/utils/formatDate.ts` - Shared date formatting (dayOfMonth, dayOfWeek, dayOfWeekShort, monthName, fullLabel)
 - `src/App.tsx` - All routes defined here
 - `src/test-utils.tsx` - Shared test wrapper (MemoryRouter + QueryClientProvider)
 
@@ -74,7 +78,9 @@ Many pages use this structure:
 }
 ```
 
-Editable calendars maintain local state initialized from query data, then submit via PATCH.
+Editable calendars use `useCalendarChanges` hook to track delta state, then submit only changes via PATCH.
+
+All router imports use `react-router-dom` (not `react-router`). Test mocks must match.
 
 ## Testing
 

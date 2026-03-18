@@ -1,22 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { useAuthContext } from "../../../contexts/useAuthContext";
-import { get } from "../helpers";
-import type { operations } from "../types";
+import { useApiQuery } from "../useApiQuery";
+import type { ApiPathParams, ApiResponse } from "../apiTypes";
 
-type UserRequestParameters =
-  operations["Users_GetById"]["parameters"]["path"];
-type UserRequestResult =
-  operations["Users_GetById"]["responses"]["200"]["content"]["application/json"];
-
-export const useUser = ({ userId }: UserRequestParameters) => {
-  const endpoint = "users";
-
-  const { getToken } = useAuthContext();
-
-  return useQuery({
-    queryKey: [endpoint, userId],
-
-    queryFn: () =>
-      get<UserRequestResult>(getToken, `${endpoint}/${userId}`)
+export const useUser = ({ userId }: ApiPathParams<"Users_GetById">) =>
+  useApiQuery<ApiResponse<"Users_GetById">>("users", {
+    queryKey: ["users", userId],
+    path: `users/${userId}`,
   });
-};

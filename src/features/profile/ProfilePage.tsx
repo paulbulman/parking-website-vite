@@ -1,11 +1,11 @@
 import { useProfile } from "../../hooks/api/queries/profile";
 import { QueryPage } from "../../components/ui";
-import { ProfileForm } from "./ProfileForm";
+import { ProfileContent } from "./ProfileContent";
 
 function ProfilePage() {
   return (
     <QueryPage title="Profile" query={useProfile()}>
-      {(data) => <ProfileForm profile={data.profile} />}
+      {(data) => <ProfileContent profile={data.profile} />}
     </QueryPage>
   );
 }

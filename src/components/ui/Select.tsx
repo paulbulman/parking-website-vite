@@ -4,7 +4,7 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
 }
 
-function Select({ label, id, className = "", children, ...props }: SelectProps) {
+export function Select({ label, id, className = "", children, ...props }: SelectProps) {
   return (
     <div>
       {label && (
@@ -22,4 +22,3 @@ function Select({ label, id, className = "", children, ...props }: SelectProps) 
   );
 }
 
-export default Select;

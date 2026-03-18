@@ -29,7 +29,8 @@ test.describe('Override requests page', () => {
 
     await page.getByLabel('Select User').selectOption('user-1');
 
-    await expect(page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ })).toBeVisible();
+    const table = page.locator('table');
+    await expect(table.getByLabel(/Request parking for Mon 3 Mar/)).toBeVisible();
   });
 
   test('save navigates home', async ({ page, mockApi, applyMockApi }) => {
@@ -41,6 +42,61 @@ test.describe('Override requests page', () => {
 
     await page.getByLabel('Select User').selectOption('user-1');
     await expect(page.getByRole('button', { name: 'Save' })).toBeVisible();
+    await page.getByRole('button', { name: 'Save' }).click();
+
+    await expect(page).toHaveURL('/');
+  });
+
+  test('cancel navigates home', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.usersList = createUsersListResponse();
+    mockApi.userRequests = createRequestsResponse();
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/override-requests');
+
+    await page.getByLabel('Select User').selectOption('user-1');
+    await page.getByRole('button', { name: 'Cancel' }).click();
+
+    await expect(page).toHaveURL('/');
+  });
+});
+
+test.describe('Override requests page - mobile view', () => {
+  test.use({ viewport: { width: 375, height: 667 } });
+
+  test('selecting a user shows calendar', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.usersList = createUsersListResponse();
+    mockApi.userRequests = createRequestsResponse();
+    await applyMockApi();
+    await page.goto('/override-requests');
+
+    await page.getByLabel('Select User').selectOption('user-1');
+
+    await expect(page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ })).toBeVisible();
+  });
+
+  test('toggling a checkbox works', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.usersList = createUsersListResponse();
+    mockApi.userRequests = createRequestsResponse();
+    await applyMockApi();
+    await page.goto('/override-requests');
+
+    await page.getByLabel('Select User').selectOption('user-1');
+
+    const checkbox = page.getByRole('checkbox', { name: /Request parking for Mon 3 Mar/ });
+    await expect(checkbox).toBeChecked();
+    await checkbox.uncheck();
+    await expect(checkbox).not.toBeChecked();
+  });
+
+  test('save navigates home', async ({ page, mockApi, applyMockApi }) => {
+    mockApi.usersList = createUsersListResponse();
+    mockApi.userRequests = createRequestsResponse();
+    mockApi.summary = createSummaryResponse();
+    await applyMockApi();
+    await page.goto('/override-requests');
+
+    await page.getByLabel('Select User').selectOption('user-1');
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page).toHaveURL('/');

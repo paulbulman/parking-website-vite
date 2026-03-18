@@ -50,7 +50,7 @@ describe("DayLink", () => {
     expect(link).toHaveAccessibleName(/Monday 15 Jan, Allocated/);
   });
 
-  it("applies problem ring styling when isProblem is true", () => {
+  it("marks link as problem when isProblem is true", () => {
     renderWithProviders(
       <DayLink
         day={makeDay({ data: { status: "allocated" as const, isProblem: true } })}
@@ -59,14 +59,14 @@ describe("DayLink", () => {
     );
 
     const link = screen.getByRole("link");
-    expect(link.className).toContain("ring-[var(--color-danger)]");
+    expect(link).toHaveAttribute("data-problem", "true");
   });
 
-  it("does not apply problem ring styling when isProblem is false", () => {
+  it("does not mark link as problem when isProblem is false", () => {
     renderWithProviders(<DayLink day={makeDay()} variant="desktop" />);
 
     const link = screen.getByRole("link");
-    expect(link.className).not.toContain("ring-[var(--color-danger)]");
+    expect(link).not.toHaveAttribute("data-problem");
   });
 
   it("renders mobile variant", () => {

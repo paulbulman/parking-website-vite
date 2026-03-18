@@ -14,6 +14,16 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
   resolve:
     mode === MOCK_TEST_MODE ? { alias: mockAuthAliases } : undefined,
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          sentry: ["@sentry/react"],
+          amplify: ["aws-amplify", "aws-amplify/auth"],
+        },
+      },
+    },
+  },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test-setup.ts"],
