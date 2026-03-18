@@ -117,7 +117,7 @@ function DailyDetailsContent({
               <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
                 Allocated ({allocatedUsers.length})
               </h2>
-              <ul className="space-y-2">
+              <ul className="space-y-2" aria-label="Allocated users">
                 {allocatedUsers.map((user, index) => (
                   <li
                     key={index}
@@ -137,7 +137,7 @@ function DailyDetailsContent({
               <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
                 Interrupted ({interruptedUsers.length})
               </h2>
-              <ul className="space-y-2">
+              <ul className="space-y-2" aria-label="Interrupted users">
                 {interruptedUsers.map((user, index) => (
                   <li
                     key={index}
@@ -157,7 +157,7 @@ function DailyDetailsContent({
               <h2 className="text-lg font-semibold text-[var(--color-text)] mb-3">
                 Pending ({pendingUsers.length})
               </h2>
-              <ul className="space-y-2">
+              <ul className="space-y-2" aria-label="Pending users">
                 {pendingUsers.map((user, index) => (
                   <li
                     key={index}

@@ -40,7 +40,7 @@ function Users() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full">
+          <table className="min-w-full" aria-label="Users">
             <thead>
               <tr className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border)]">
                 <th className="px-4 py-3 text-left text-sm font-medium text-[var(--color-text-secondary)]">
@@ -94,14 +94,14 @@ function Users() {
                     <Link
                       to={`/users/edit/${user.userId}`}
                       className="text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] transition-colors mr-4"
-                      title="Edit user"
+                      aria-label={`Edit ${user.firstName} ${user.lastName}`}
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </Link>
                     <Link
                       to={`/users/delete/${user.userId}`}
                       className="text-[var(--color-danger)] hover:opacity-75 transition-opacity"
-                      title="Delete user"
+                      aria-label={`Delete ${user.firstName} ${user.lastName}`}
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </Link>

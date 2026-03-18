@@ -41,6 +41,11 @@ function RequestsCalendar({
       dayOfMonth: date.getDate(),
       dayOfWeek: date.toLocaleDateString("en-GB", { weekday: "short" }),
       monthName: date.toLocaleDateString("en-GB", { month: "short" }),
+      fullLabel: date.toLocaleDateString("en-GB", {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+      }),
     };
   };
 
@@ -77,16 +82,15 @@ function RequestsCalendar({
           {currentWeek?.days.map((day, dayIndex) => {
             if (day.hidden) return null;
 
-            const { dayOfMonth, dayOfWeek, monthName } = formatDate(
+            const { dayOfMonth, dayOfWeek, monthName, fullLabel } = formatDate(
               day.localDate
             );
             const isChecked = requests[day.localDate] || false;
 
             return (
-              <div
+              <label
                 key={dayIndex}
-                onClick={() => !readOnly && onCheckboxChange?.(day.localDate)}
-                className={`card p-4 transition-colors ${
+                className={`card p-4 transition-colors block ${
                   !readOnly
                     ? "cursor-pointer hover:bg-[var(--color-bg-subtle)]"
                     : ""
@@ -104,12 +108,13 @@ function RequestsCalendar({
                   <input
                     type="checkbox"
                     checked={isChecked}
-                    readOnly
+                    onChange={() => onCheckboxChange?.(day.localDate)}
                     disabled={readOnly}
-                    className="w-6 h-6 pointer-events-none"
+                    aria-label={`Request parking for ${fullLabel}`}
+                    className="w-6 h-6"
                   />
                 </div>
-              </div>
+              </label>
             );
           })}
         </div>
@@ -132,38 +137,39 @@ function RequestsCalendar({
                       );
                     }
 
-                    const { dayOfMonth, dayOfWeek, monthName } = formatDate(
-                      day.localDate
-                    );
+                    const { dayOfMonth, dayOfWeek, monthName, fullLabel } =
+                      formatDate(day.localDate);
                     const isChecked = requests[day.localDate] || false;
 
                     return (
                       <td
                         key={dayIndex}
-                        onClick={() =>
-                          !readOnly && onCheckboxChange?.(day.localDate)
-                        }
                         className={`border-r border-b border-[var(--color-border)] last:border-r-0 p-4 text-center bg-[var(--color-surface)] transition-colors ${
                           !readOnly
                             ? "cursor-pointer hover:bg-[var(--color-bg-subtle)]"
                             : ""
                         }`}
                       >
-                        <div className="text-xs text-[var(--color-text-secondary)] mb-1">
-                          {dayOfWeek}
-                        </div>
-                        <div className="text-lg font-semibold text-[var(--color-text)] mb-2">
-                          {dayOfMonth} {monthName}
-                        </div>
-                        <div className="flex justify-center">
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            readOnly
-                            disabled={readOnly}
-                            className="w-5 h-5 pointer-events-none"
-                          />
-                        </div>
+                        <label className={!readOnly ? "cursor-pointer" : ""}>
+                          <div className="text-xs text-[var(--color-text-secondary)] mb-1">
+                            {dayOfWeek}
+                          </div>
+                          <div className="text-lg font-semibold text-[var(--color-text)] mb-2">
+                            {dayOfMonth} {monthName}
+                          </div>
+                          <div className="flex justify-center">
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={() =>
+                                onCheckboxChange?.(day.localDate)
+                              }
+                              disabled={readOnly}
+                              aria-label={`Request parking for ${fullLabel}`}
+                              className="w-5 h-5"
+                            />
+                          </div>
+                        </label>
                       </td>
                     );
                   })}

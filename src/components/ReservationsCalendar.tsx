@@ -57,6 +57,13 @@ function ReservationDropdowns({
   currentSelections,
   onSelectionChange,
 }: ReservationDropdownsProps) {
+  const date = new Date(localDate);
+  const dateLabel = date.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+
   return (
     <div className="space-y-2">
       {Array.from({ length: shortLeadTimeSpaces }).map((_, index) => (
@@ -64,6 +71,7 @@ function ReservationDropdowns({
           key={index}
           value={currentSelections[index] || ""}
           onChange={(e) => onSelectionChange(localDate, index, e.target.value)}
+          aria-label={`Reservation slot ${index + 1} for ${dateLabel}`}
         >
           <option value="">None</option>
           {users.map((user) => (

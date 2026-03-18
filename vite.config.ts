@@ -14,4 +14,9 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss()],
   resolve:
     mode === MOCK_TEST_MODE ? { alias: mockAuthAliases } : undefined,
+  test: {
+    environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+    include: ["src/**/*.test.{ts,tsx}"],
+  },
 }));
