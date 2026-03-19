@@ -17,9 +17,15 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          sentry: ["@sentry/react"],
-          amplify: ["aws-amplify", "aws-amplify/auth"],
+        manualChunks(id) {
+          switch (true) {
+            case id.includes("@sentry/react"):
+              return "sentry";
+            case id.includes("aws-amplify"):
+              return "amplify";
+            default:
+              return undefined;
+          }
         },
       },
     },
