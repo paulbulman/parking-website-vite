@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
 import { AuthProvider } from './contexts/AuthProvider';
 import { AuthQueryProvider } from './components/AuthQueryProvider';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -7,6 +8,8 @@ import { PermissionGuard } from './components/PermissionGuard';
 import { USER_ADMIN, TEAM_LEADER } from './hooks/useUserClaims';
 import Layout from './components/Layout';
 import PublicLayout from './components/PublicLayout';
+
+const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 
 const pageImports = {
   LoginPage: () => import('./features/auth/LoginPage'),
@@ -74,7 +77,7 @@ function App() {
       <AuthQueryProvider>
         <BrowserRouter>
           <Suspense>
-            <Routes>
+            <SentryRoutes>
               <Route path="/login" element={<PublicLayout />}>
                 <Route index element={<LoginPage />} />
               </Route>
@@ -146,7 +149,7 @@ function App() {
                 <Route path="access-denied" element={<AccessDeniedPage />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Route>
-            </Routes>
+            </SentryRoutes>
           </Suspense>
         </BrowserRouter>
       </AuthQueryProvider>

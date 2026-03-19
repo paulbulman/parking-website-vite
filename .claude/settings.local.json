@@ -19,7 +19,9 @@
       "Bash(npx playwright:*)",
       "Bash(npx vitest:*)",
       "Bash(wc:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "WebFetch(domain:docs.sentry.io)",
+      "Bash(npm ls:*)"
     ]
   }
 }
